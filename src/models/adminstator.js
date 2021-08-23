@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize')
+const { DataTypes, where } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const sequelize = require('../db/sequelize')
 
@@ -12,7 +12,7 @@ const Admin = sequelize.define('adminstator',{
     email:{
         type: DataTypes.STRING(45),
         allowNull:false,
-        unique:true
+        unique:'email_UNIQUE'
     },
     password:{
         type: DataTypes.STRING(100),
@@ -24,7 +24,7 @@ const AdminToken = sequelize.define('adminstator_token',{
     token:{
         type: DataTypes.STRING(200),
         allowNull:false,
-        unique:true
+        unique:'token_UNIQUE'
     },
     admin_id:{
         type: DataTypes.INTEGER,
@@ -37,7 +37,7 @@ AdminToken.removeAttribute("id")
 
 Admin.verifyLogin = async function (email,password){
     
-    const adminResult = await Admin.findOne({email});
+    const adminResult = await Admin.findOne({where:{email}});
 
             if(!adminResult){
                 throw new Error('Unable to login');
