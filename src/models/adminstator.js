@@ -1,4 +1,4 @@
-const { DataTypes, where } = require('sequelize')
+const { DataTypes } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const sequelize = require('../db/sequelize')
 
@@ -28,6 +28,7 @@ const AdminToken = sequelize.define('adminstator_token',{
     },
     admin_id:{
         type: DataTypes.INTEGER,
+        allowNull:false,
         references: Admin,
         key:'admin_id'
     }
