@@ -12,7 +12,10 @@ const Admin = sequelize.define('adminstator',{
     email:{
         type: DataTypes.STRING(45),
         allowNull:false,
-        unique:'email_UNIQUE'
+        unique:'email_UNIQUE',
+        validate:{
+            isEmail:true
+        }
     },
     password:{
         type: DataTypes.STRING(100),

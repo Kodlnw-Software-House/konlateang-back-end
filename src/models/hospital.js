@@ -16,7 +16,10 @@ const Hostipal = sequelize.define('hospital_adminstator',{
     },
     email:{
         type: DataTypes.STRING(45),
-        allowNull: false
+        allowNull: false,
+        validate:{
+            isEmail:true
+        }
     },
     password:{
         type: DataTypes.STRING(100),
