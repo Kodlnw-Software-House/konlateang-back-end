@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken')
 
 const router = new express.Router();
-const {patientAuth} = require('../middleware/auth')
+const {auth} = require('../middleware/auth')
 const {Patient,PatientToken} = require('../models/patient')
 
  router.get('/getall',async(req,res)=>{
@@ -27,7 +27,7 @@ const {Patient,PatientToken} = require('../models/patient')
      }
  })
 
- router.get('/token',patientAuth,async (req,res)=>{
+ router.get('/token',auth('PATIENT','REFRESH'),async (req,res)=>{
      jwt.sign({email:req.patient.email},process.env.JWTACCESSTOKEN,{expiresIn:'15s'}, (error,result)=>{
         if(error){
             return res.status(500).send();
@@ -36,7 +36,7 @@ const {Patient,PatientToken} = require('../models/patient')
      })
  })
 
- router.delete('/logout',patientAuth,async (req,res)=>{
+ router.delete('/logout',auth('PATIENT','REFRESH'),async (req,res)=>{
     try{
         await PatientToken.destroy({where:{token:req.token}});
         res.status(200).send();

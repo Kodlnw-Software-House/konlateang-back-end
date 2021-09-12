@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const router = new express.Router();
 
 const {Admin,AdminToken} = require('../models/adminstator')
-const {adminAuth} = require('../middleware/auth')
+const {adminAuth,auth} = require('../middleware/auth')
 
 router.post('/login',async (req,res)=>{
     try{
@@ -18,8 +18,8 @@ router.post('/login',async (req,res)=>{
     }
 })
 
-router.get('/token',adminAuth,async(req,res)=>{
-    jwt.sign({email:req.admin.email}, process.env.JWTACCESSTOKEN,{expiresIn:'15s'},(error,result)=>{
+router.get('/token',auth('ADMIN','REFRESH'),async(req,res)=>{
+    jwt.sign({email:req.admin.email}, process.env.JWTACCESSTOKEN,{expiresIn:'30s'},(error,result)=>{
         if(error){
         return res.status(403).send();
         }
@@ -27,7 +27,7 @@ router.get('/token',adminAuth,async(req,res)=>{
     })
 })
 
-router.delete('/logout',adminAuth,async(req,res)=>{
+router.delete('/logout',auth('ADMIN','REFRESH'),async(req,res)=>{
     try{
         await AdminToken.destroy({where:{
             token:req.token

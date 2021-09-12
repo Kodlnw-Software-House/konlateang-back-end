@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const router = new express.Router();
 
 const {Hostipal,HospitalToken} = require('../models/hospital')
-const {hospitalAuth} = require('../middleware/auth')
+const {auth} = require('../middleware/auth')
 
 router.get('/getall',async (req,res)=>{
     try{
@@ -28,7 +28,7 @@ router.post('/login',async (req,res)=>{
     }
 })
 
-router.get('/token',hospitalAuth,async (req,res)=>{
+router.get('/token', auth('HOSPITAL','REFRESH'),async (req,res)=>{
     jwt.sign({email:req.hospital.email},process.env.JWTACCESSTOKEN,{expiresIn: '15s'},(error,result)=>{
         if(error){
             return res.status(500).send();
@@ -37,7 +37,7 @@ router.get('/token',hospitalAuth,async (req,res)=>{
     });
 })
 
-router.delete('/logout', hospitalAuth,async (req,res)=>{
+router.delete('/logout', auth('HOSPITAL','REFRESH'),async (req,res)=>{
     try{
         await HospitalToken.destroy({
             where:{
