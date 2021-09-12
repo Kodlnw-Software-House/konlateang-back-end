@@ -21,7 +21,7 @@ const {Patient,PatientToken} = require('../models/patient')
      const patient = await Patient.verifyLogin(req.body.email,req.body.password);
      const token = jwt.sign({email:patient.email},process.env.JWTSECRET);
      await PatientToken.create({token,patient_id:patient.patient_id});
-     res.status(201).send({refreshToken:token});
+     res.status(201).send({patient,refreshToken:token,tokenType:'Bearer'});
      }catch(error){
          res.status(500).send({error:error.message});
      }
@@ -50,7 +50,7 @@ router.post('/register',async (req,res)=>{
         const newPatient = await Patient.create(req.body);
         const token = jwt.sign({email:newPatient.email},process.env.JWTSECRET);
         await PatientToken.create({token,patient_id:newPatient.patient_id});
-        res.status(200).send({newPatient,refreshToken:token});
+        res.status(200).send({patient:newPatient,refreshToken:token,tokenType:'Bearer'});
     }catch(error){
         res.status(400).send({error});
     }

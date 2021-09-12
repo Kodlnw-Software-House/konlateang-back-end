@@ -22,7 +22,7 @@ router.post('/login',async (req,res)=>{
         const hospital = await Hostipal.verifyLogin(req.body.email,req.body.password);
         const token = jwt.sign({email:hospital.email}, process.env.JWTSECRET);
         await HospitalToken.create({token,hospital_id:hospital.hospital_id});
-        res.status(201).send({refreshToken:token});
+        res.status(201).send({hospital,refreshToken:token,tokenType:'Bearer'});
     }catch(error){
         res.status(500).send({error:error.message});
     }
