@@ -1,5 +1,8 @@
 const express = require('express')
 const adminRouter = require('./routers/adminstator')
+const multer = require('multer')
+const upload = multer()
+
 const hospitalRouter = require('./routers/hospital')
 const patientRouter = require('./routers/patient')
 const isolationRouter = require('./routers/isolation')
@@ -9,6 +12,9 @@ const app = express();
 const port = process.env.PORT
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(upload.array())
+
 app.use('/admin',adminRouter)
 app.use('/hospital',hospitalRouter)
 app.use('/patient',patientRouter)
