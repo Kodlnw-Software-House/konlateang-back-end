@@ -10,11 +10,12 @@ router.post('/login',async (req,res)=>{
     try{
         const admin = await Admin.verifyLogin(req.body.email, req.body.password);
         const token = jwt.sign({email:admin.email}, process.env.JWTSECRET);
+        delete admin.dataValues.password
         await AdminToken.create({token, admin_id:admin.admin_id});
         res.status(201).send({admin,token,tokenType:'Bearer'});
     }
     catch(error){
-        res.status(500).send({error:error.message});
+        res.status(400).send({error:error.message});
     }
 })
 

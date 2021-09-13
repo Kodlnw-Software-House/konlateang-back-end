@@ -20,11 +20,12 @@ router.get('/getall',async (req,res)=>{
 router.post('/login',async (req,res)=>{
     try{
         const hospital = await Hostipal.verifyLogin(req.body.email,req.body.password);
+        delete hospital.dataValues.password
         const token = jwt.sign({email:hospital.email}, process.env.JWTSECRET);
         await HospitalToken.create({token,hospital_id:hospital.hospital_id});
         res.status(201).send({hospital,token,tokenType:'Bearer'});
     }catch(error){
-        res.status(500).send({error:error.message});
+        res.status(400).send({error:error.message});
     }
 })
 

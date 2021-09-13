@@ -19,11 +19,12 @@ const {Patient,PatientToken} = require('../models/patient')
  router.post('/login',async (req,res)=>{
      try{
      const patient = await Patient.verifyLogin(req.body.email,req.body.password);
+     delete patient.dataValues.password
      const token = jwt.sign({email:patient.email},process.env.JWTSECRET);
      await PatientToken.create({token,patient_id:patient.patient_id});
      res.status(201).send({patient,token,tokenType:'Bearer'});
      }catch(error){
-         res.status(500).send({error:error.message});
+         res.status(400).send({error:error.message});
      }
  })
  router.delete('/logout',auth('PATIENT'),async (req,res)=>{
@@ -38,11 +39,12 @@ const {Patient,PatientToken} = require('../models/patient')
 router.post('/register',async (req,res)=>{
     try{
         const newPatient = await Patient.create(req.body);
+        delete newPatient.dataValues.password
         const token = jwt.sign({email:newPatient.email},process.env.JWTSECRET);
         await PatientToken.create({token,patient_id:newPatient.patient_id});
         res.status(200).send({patient:newPatient,token,tokenType:'Bearer'});
     }catch(error){
-        res.status(400).send({error});
+        res.status(400).send({error:error.message});
     }
 })
 
