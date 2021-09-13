@@ -22,22 +22,13 @@ router.post('/login',async (req,res)=>{
         const hospital = await Hostipal.verifyLogin(req.body.email,req.body.password);
         const token = jwt.sign({email:hospital.email}, process.env.JWTSECRET);
         await HospitalToken.create({token,hospital_id:hospital.hospital_id});
-        res.status(201).send({hospital,refreshToken:token,tokenType:'Bearer'});
+        res.status(201).send({hospital,token,tokenType:'Bearer'});
     }catch(error){
         res.status(500).send({error:error.message});
     }
 })
 
-router.get('/token', auth('HOSPITAL','REFRESH'),async (req,res)=>{
-    jwt.sign({email:req.hospital.email},process.env.JWTACCESSTOKEN,{expiresIn: '15s'},(error,result)=>{
-        if(error){
-            return res.status(500).send();
-        }
-        res.status(201).send({accessToken:result});
-    });
-})
-
-router.delete('/logout', auth('HOSPITAL','REFRESH'),async (req,res)=>{
+router.delete('/logout', auth('HOSPITAL'),async (req,res)=>{
     try{
         await HospitalToken.destroy({
             where:{

@@ -3,18 +3,12 @@ const {Admin,AdminToken} = require('../models/adminstator')
 const {Hostipal,HospitalToken} = require('../models/hospital')
 const {Patient,PatientToken} = require('../models/patient')
 
-const auth = function(role,tokenType){
+const auth = function(role){
     return async function (req, res, next){
         try{
         const token = req.header('Authorization').replace('Bearer ','')
 
-        let decoded
-        if(tokenType==='REFRESH'){
-            decoded = jwt.verify(token,process.env.JWTSECRET)
-        }
-        else if(tokenType==='ACCESS'){
-            decoded = jwt.verify(token,process.env.JWTACCESSTOKEN);
-        }
+        let decoded = jwt.verify(token,process.env.JWTSECRET)
         
         let isMatch
         if(role==='ADMIN'){
