@@ -38,7 +38,9 @@ const auth = function(role){
             if(!isMatch){
                 throw new Error();
             }
-            const patientResult = await Patient.findOne({where:{email:decoded.email}})
+            const patientResult = await Patient.findOne({where:{email:decoded.email},attributes:{
+                exclude:['avatar']
+            }})
             if(!patientResult){
                 throw new Error();
             }

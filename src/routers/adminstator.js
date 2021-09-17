@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const router = new express.Router();
 
 const {Admin,AdminToken} = require('../models/adminstator')
-const {adminAuth,auth} = require('../middleware/auth')
+const {auth} = require('../middleware/auth')
 
 router.post('/login',async (req,res)=>{
     try{

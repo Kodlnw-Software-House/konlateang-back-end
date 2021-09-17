@@ -15,7 +15,18 @@ const Patient = sequelize.define('patient',{
         allowNull:false,
         unique:'email_UNIQUE',
         validate:{
-            isEmail:true
+            isEmail:true,
+            isUnique: (value,next)=>{
+                Patient.findAll({
+                    where:{
+                        email:value
+                    },
+                    attributes:['patient_id']}).then((patient)=>{
+                        if (patient.length != 0)
+                        next(new Error('Email address already in use!'));
+                        next();
+                    })
+            }
         }
     },
     password:{
@@ -33,7 +44,20 @@ const Patient = sequelize.define('patient',{
     citizen_id:{
         type: DataTypes.BIGINT(13),
         allowNull:false,
-        unique:'citizen_id_UNIQUE'
+        unique:'citizen_id_UNIQUE',
+        validate:{
+            isUnique: (value,next)=>{
+                Patient.findAll({
+                    where:{
+                        citizen_id:value
+                    },
+                    attributes:['patient_id']}).then((patient)=>{
+                        if (patient.length != 0)
+                        next(new Error('citizen id already in use!'));
+                        next();
+                    })
+            }
+        }
     },
     fname:{
         type: DataTypes.STRING(45),
@@ -48,12 +72,15 @@ const Patient = sequelize.define('patient',{
         allowNull:false
     },
     dob:{
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false
     },
     address:{
         type: DataTypes.STRING(500),
         allowNull: false
+    },
+    avatar:{
+        type: DataTypes.BLOB('medium')
     }
 })
 
@@ -73,7 +100,9 @@ const PatientToken = sequelize.define('patient_token',{
 })
 
 Patient.verifyLogin = async function(email,password){
-    const patientResult = await Patient.findOne({where:{email}});
+    const patientResult = await Patient.findOne({where:{email},attributes:{
+        exclude:['avatar']
+    }});
     if(!patientResult){
         throw new Error('unable to login.');
     }

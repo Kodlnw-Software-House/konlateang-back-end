@@ -3,15 +3,11 @@ const app = express()
 
 const cors = require('cors')
 
-const multer = require('multer')
-const upload = multer()
-
 const adminRouter = require('./routers/adminstator')
 const hospitalRouter = require('./routers/hospital')
 const patientRouter = require('./routers/patient')
 const isolationRouter = require('./routers/isolation')
 const bookingRouter = require('./routers/booking')
-
 
 const port = process.env.PORT
 
@@ -22,7 +18,6 @@ app.use(cors({
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(upload.array())
 
 app.use('/admin',adminRouter)
 app.use('/hospital',hospitalRouter)
