@@ -7,6 +7,7 @@ const sharp = require('sharp')
 const router = new express.Router();
 const {auth} = require('../middleware/auth')
 const {Patient,PatientToken} = require('../models/patient')
+const Booking = require('../models/booking')
 
 const upload = multer()
 const uploadAvatar = multer({
@@ -137,6 +138,27 @@ router.get('/avatar/:id',async(req,res)=>{
         }catch(error){
             res.status(500).send({error:error.message})
         }
+})
+
+router.post('/booking',async (req,res)=>{
+    try{
+        req.body.status_id = 3
+        const booking = await Booking.create(req.body)
+        res.status(200).send({booking})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
+    try{
+        const bookings = await Booking.findAll({where:{
+            patient_id: req.patient.patient_id
+        }}) 
+        res.status(200).send({bookings})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
 })
 
  module.exports = router
