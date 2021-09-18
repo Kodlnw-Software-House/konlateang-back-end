@@ -81,6 +81,13 @@ const Patient = sequelize.define('patient',{
     },
     avatar:{
         type: DataTypes.BLOB('medium')
+    },
+    tel:{
+        type: DataTypes.STRING(10),
+        allowNull: false
+    },
+    gender:{
+        type: DataTypes.STRING(1)
     }
 })
 
