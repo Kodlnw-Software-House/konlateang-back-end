@@ -30,6 +30,10 @@ const IsolationImage = sequelize.define('community_isolation_image',{
     image_name:{
         type: DataTypes.BLOB('long'),
         allowNull: false
+    },
+    index:{
+        type: DataTypes.INTEGER(1),
+        allowNull: false
     }
 })
 
