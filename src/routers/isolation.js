@@ -10,7 +10,7 @@ router.get('/getall',(req,res)=>{
     const search = req.query.search ? req.query.search : ''
     const limit = parseInt(req.query.pageSize)
     const offset = limit * (parseInt(req.query.pageNumber)-1)
-    Isolation.findAll({
+    Isolation.findAndCountAll({
         where:{
             [Op.or]:[{
                 community_isolation_name:{
@@ -37,6 +37,8 @@ router.get('/getall',(req,res)=>{
         limit,
         offset,
     }).then((result)=>{
+        const element = result.count / limit
+        result.totalPage = element === Math.round(element) ? element : Math.round(element+1)
         res.status(200).send({result})
     }).catch((error)=>{
         res.status(500).send({error:error.message})
