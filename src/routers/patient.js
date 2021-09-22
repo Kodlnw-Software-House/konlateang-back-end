@@ -72,7 +72,7 @@ router.post('/register',upload.array(),async (req,res)=>{
 router.put('/edit',upload.array(),auth('PATIENT'), async (req,res)=>{
     try{
         const updates = Object.keys(req.body);
-        const allowedUpdates = ['address','dob','password'];
+        const allowedUpdates = ['address','tel','password'];
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
         if(!isValidOperation){
             return res.status(400).send({ error:'Invalid updates!'});
@@ -140,13 +140,16 @@ router.get('/avatar/:id',async(req,res)=>{
         }
 })
 
-router.post('/booking',async (req,res)=>{
+router.post('/booking',auth('PATIENT'),async (req,res)=>{
     try{
-        req.body.status_id = 3
-        const booking = await Booking.create(req.body)
-        res.status(200).send({booking})
+        await Booking.create({
+            status_id: 3,
+            patient_id: req.patient.patient_id,
+            community_isolation_id: req.body.community_isolation_id
+        })
+        res.status(200).send()
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error})
     }
 })
 
