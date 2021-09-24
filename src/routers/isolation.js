@@ -37,8 +37,7 @@ router.get('/getall',(req,res)=>{
         limit,
         offset,
     }).then((result)=>{
-        const element = result.count / limit
-        result.totalPage = element === Math.round(element) ? element : Math.round(element+1)
+        result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
     }).catch((error)=>{
         res.status(500).send({error:error.message})

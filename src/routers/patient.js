@@ -7,7 +7,8 @@ const sharp = require('sharp')
 const router = new express.Router();
 const {auth} = require('../middleware/auth')
 const {Patient,PatientToken} = require('../models/patient')
-const Booking = require('../models/booking')
+const Booking = require('../models/booking');
+const { Isolation } = require('../models/isolation');
 
 const upload = multer()
 const uploadAvatar = multer({
@@ -157,7 +158,9 @@ router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
     try{
         const bookings = await Booking.findAll({where:{
             patient_id: req.patient.patient_id
-        }}) 
+        },
+        include:[Isolation]
+    }) 
         res.status(200).send({bookings})
     }catch(error){
         res.status(500).send({error:error.message})
