@@ -73,12 +73,6 @@ spec:
 
     // ***** Stage Sonarqube *****
     stage('Sonarqube Scanner') {
-        environment {
-          // Override HOME to WORKSPACE
-          HOME = "${WORKSPACE}"
-          // or override default cache directory (~/.npm)
-          NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
-          }
         steps {
             container('java-node'){
                 script {
@@ -109,6 +103,12 @@ spec:
     stage('OWASP Dependency Check') {
         steps {
             container('java-node') {
+                environment {
+                  // Override HOME to WORKSPACE
+                  HOME = "${WORKSPACE}"
+                  // or override default cache directory (~/.npm)
+                  NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+                  }
                 script {
                     // Install application dependency
                     sh ''' npm install --package-lock '''
