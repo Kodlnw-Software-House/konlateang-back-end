@@ -73,10 +73,15 @@ spec:
 
     // ***** Stage Sonarqube *****
     stage('Sonarqube Scanner') {
+        environment {
+          // Override HOME to WORKSPACE
+          HOME = "${WORKSPACE}"
+          // or override default cache directory (~/.npm)
+          NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+          }
         steps {
             container('java-node'){
                 script {
-
                     // Authentiocation with https://sonarqube.kodlnw-product.net
                     withSonarQubeEnv('konlateang-sonarqube') {
                         // Run Sonar Scanner
