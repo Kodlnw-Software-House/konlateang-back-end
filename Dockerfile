@@ -6,9 +6,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
-RUN npm config set strict-ssl false
-RUN npm config set registry "http://registry.npmjs.org/"
-RUN npm install
+RUN npm install --unsafe-perm
 
 # Bundle app source
 COPY . .
