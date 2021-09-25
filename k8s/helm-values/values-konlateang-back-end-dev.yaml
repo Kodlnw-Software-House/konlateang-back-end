@@ -14,4 +14,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 extraEnv:
-  ENV_HOST: kodlnw-service-front-end-dev
+  PORT: 3000
+  MYSQL_URI: mysql://root:password@konlateang-app-project:asia-southeast1:konlateang-db/community_isolation_db
+  JWTSECRET: mysecret
+  ORIGIN: http://localhost:8080

@@ -101,14 +101,14 @@ spec:
 
     // ***** Stage OWASP *****
     stage('OWASP Dependency Check') {
+        environment {
+          // Override HOME to WORKSPACE
+          HOME = "${WORKSPACE}"
+          // or override default cache directory (~/.npm)
+          NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+            }
         steps {
             container('java-node') {
-                environment {
-                  // Override HOME to WORKSPACE
-                  HOME = "${WORKSPACE}"
-                  // or override default cache directory (~/.npm)
-                  NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
-                  }
                 script {
                     // Install application dependency
                     sh ''' npm install --package-lock '''
