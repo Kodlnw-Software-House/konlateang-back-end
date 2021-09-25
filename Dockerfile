@@ -10,7 +10,7 @@ ENV HOME = "${pwd}"
 ENV NPM_CONFIG_CACHE = "${pwd}/.npm"
 RUN npm config set sharp_binary_host "https://npm.taobao.org/mirrors/sharp"
 RUN npm config set sharp_libvips_binary_host "https://npm.taobao.org/mirrors/sharp-libvips"
-RUN npm install --unsafe-perm
+RUN npm install --verbose --unsafe-perm
 
 # Bundle app source
 COPY . .
