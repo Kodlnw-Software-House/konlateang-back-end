@@ -15,6 +15,6 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 extraEnv:
   PORT: 3000
-  MYSQL_URI: mysql://root:password@konlateang-app-project:asia-southeast1:konlateang-db/community_isolation_db
+  MYSQL_URI: mysql://konlateang-admin:KonlateangAdmin@10.205.0.4/community_isolation_db
   JWTSECRET: mysecret
-  ORIGIN: http://localhost:8080
+  ORIGIN: http://konlateang-service-front-end-dev:8080
