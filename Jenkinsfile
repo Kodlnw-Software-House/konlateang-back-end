@@ -20,7 +20,7 @@ spec:
     - cat
     tty: true
   - name: docker
-    image: docker:20.10.8-dind
+    image: docker:19.03-dind
     command:
     - dockerd
     - --host=unix:///var/run/docker.sock
