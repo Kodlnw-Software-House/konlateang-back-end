@@ -20,12 +20,9 @@ spec:
     - cat
     tty: true
   - name: docker
-    image: docker:19.03-dind
+    image: docker:20.10.8-dind
     command:
     - dockerd
-    - --host=unix:///var/run/docker.sock
-    - --host=tcp://0.0.0.0:2375
-    - --storage-driver=overlay2
     tty: true
     securityContext:
       privileged: true
