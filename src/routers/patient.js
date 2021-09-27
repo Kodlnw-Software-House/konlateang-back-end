@@ -9,6 +9,8 @@ const {auth} = require('../middleware/auth')
 const {Patient,PatientToken} = require('../models/patient')
 const Booking = require('../models/booking');
 const { Isolation } = require('../models/isolation');
+const { Op } = require('sequelize');
+const Status = require('../models/status');
 
 const upload = multer()
 const uploadAvatar = multer({
@@ -16,7 +18,7 @@ const uploadAvatar = multer({
         fileSize: (1024*1024*4) //4MB
     },
     fileFilter(req,file,cb){
-        if(!file.originalname.match(/\.(png|jpeg|jpg)$/)){
+        if(!file.originalname.match(/\.(png|jpeg|jpg|JPG|JPEG|PNG)$/)){
             return cb(new Error('Please upload image'));
         }
         cb(undefined,true);
@@ -35,7 +37,13 @@ const uploadAvatar = multer({
  })
 
  router.get('/me',auth('PATIENT'),async(req,res)=>{
-    res.send(req.patient);
+    const booking = await Booking.findAll({
+        where:{
+        patient_id:req.patient.patient_id,
+        },
+        include:[Isolation,Status]
+    })
+    res.send({patient:req.patient,booking});
  })
 
  router.post('/login',upload.array(),async (req,res)=>{
@@ -143,8 +151,18 @@ router.get('/avatar/:id',async(req,res)=>{
 
 router.post('/booking',auth('PATIENT'),async (req,res)=>{
     try{
+        const checkHasBooking = await Booking.findAll({where:{
+            patient_id: req.patient.patient_id,
+            status_id: {
+                [Op.or]:[2,4]
+            }
+        }})
+        if(checkHasBooking.length !==0){
+            return res.status(400).send({status:'you have already booking!'})
+        }
+
         await Booking.create({
-            status_id: 3,
+            status_id: 2,
             patient_id: req.patient.patient_id,
             community_isolation_id: req.body.community_isolation_id
         })
