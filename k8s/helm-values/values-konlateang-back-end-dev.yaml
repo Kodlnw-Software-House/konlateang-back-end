@@ -1,20 +1,198 @@
-backend:
-  namespace: konlateang-service-dev
-  image: ghcr.io/kodlnw-software-house/konlateang-back-end
+# Default values for generic-deployment.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/kodlnw-software-house/konlateang-back-end
   tag: dev
-  replicas: 1
-  imagePullSecrets: konlateang-ghcr
-  port: 3000
-  healthCheckPath: "/health"
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+ - konlateang-ghcr
+
+nameOverride: konlateang-back-end-deployment
+fullnameOverride: konlateang-back-end-deployment
+# Istio version label
+versionLabel: 0.3.0
+
+env:
+  - name: PORT
+    value: 3000
+  - name: MYSQL_URI
+    value: mysql://konlateang-admin:KonlateangAdmin@10.205.0.4/community_isolation_db
+  - name: JWTSECRET
+    value: mysecret
+  - name: ORIGIN
+    value: http://konlateang-service-front-end-dev
+
+  # - name: SAMPLE_SHARED_CONFIG
+  #   configmap:
+  #     name: shared-configmap
+  #     value: SAMPLE_SHARED_CONFIG
+envFrom: 
+  # configMaps:
+  #   - generic-deployment
+
+configMaps:
+  create: false
+  data: {}
+    # SAMPLE_CONFIG: "sample-config"
+
+secrets:
+  create: false
+  data: {}
+    # SAMPLE_PASSWORD: "sample-secret"
+
+containerPorts:
+  - 3000
+
+# Enable PodSecurityPolicy
+pspEnable: false
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 50Mi
+  # limits:
+  #   cpu: 2000m
+  #   memory: 200Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Waiting time in seconds for shutting down pod after sent SIGTERM
+terminationGracePeriodSeconds: 30
+
+services: {}
+  # - type: NodePort
+  #   annotation: {}
+  #   ports:
+  #     - name: sample1-service-port
+  #       protocol: TCP
+  #       port: 80
+  #       targetPort: 80
+  #       nodePort: 32080
+  #     - name: sample2-service-port
+  #       protocol: TCP
+  #       port: 8080
+  #       targetPort: 8080
+  #       nodePort: 32081
+  # - suffixName: "lb"
+  #   type: LoadBalancer
+  #   annotation: {}
+  #   ports:
+  #     - name: sample1-service-port
+  #       protocol: TCP
+  #       port: 80
+  #       targetPort: 80
+  #     - name: sample2-service-port
+  #       protocol: TCP
+  #       port: 8080
+  #       targetPort: 8080
+
+serviceHeadless:
+  enabled: true
+  # annotation: {}
+  ports:
+    - name: konlateang-back-end-port
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  #   - name: sample2-service-port
+  #     protocol: TCP
+  #     port: 8080
+  #     targetPort: 8080
+
+healthCheck:
+  enabled: true
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 5
+    # timeoutSeconds: 1
+    periodSeconds: 30
+    # successThreshold: 1
+    # failureThreshold: 3
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 5
+    # timeoutSeconds: 1
+    periodSeconds: 30
+    # successThreshold: 1
+    # failureThreshold: 3
+
+# Pod update strategy
+updateStrategy:
+  # Blue-Green Deployment
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 100%
+    maxUnavailable: 0
+
+# Horizontal Pod Autoscaling
+autoscaling:
+  enabled: false
+  # # Example
+  # minReplicas: 1
+  # maxReplicas: 10
+  # targetCPUUtilizationPercentage: 50
+  # targetMemoryUtilizationPercentage: 50
+
 ingress:
-#   host: dev.kodlnw-product.net
-#   path: "/back-end(/|$)(.*)"
-  serviceType: ClusterIP
-#   annotations:
-#     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/rewrite-target: /$2
-extraEnv:
-  PORT: 3000
-  MYSQL_URI: mysql://konlateang-admin:KonlateangAdmin@10.205.0.4/community_isolation_db
-  JWTSECRET: mysecret
-  ORIGIN: http://konlateang-service-front-end-dev
+  enabled: false
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  #   nginx.ingress.kubernetes.io/rewrite-target: /$2
+  # # ingressClassName: nginx
+  # rules:
+  #   - host: dev.kodlnw-product.net
+  #     http:
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  #           backend:
+  #             service:
+  #               port:
+  #                 number: 80
+    #       - path: /api
+    #         backend:
+    #           service
+    #             port:
+    #               number: 8080
+    # - host: b.example.com
+    #   http:
+    #     paths:
+    #       - path: /
+    #         backend:
+    #           - servicePort: 80
+  tls: {}
+  #  - hosts:
+  #    - a.example.com
+  #    - b.example.com
+  #    secretName: wildcard.example.com
+
+istioIngress:
+  enabled: false
+  # serverPort: 80 # or 443
+  # tls: {}
+    # mode: SIMPLE
+    # credentialName: https-tls
+  # hosts: []
+    # - a.example.com
+  # http:
+  #   - match:
+  #     - uri:
+  #         prefix: /
+  #     rewrite:
+  #       uri: /rewrite
+  #     route:
+  #     - destination:
+  #         port:
+  #           number: 8080

@@ -1,0 +1,38 @@
+{{- if .Values.istioIngress.enabled }}
+{{- $fullName := include "generic-deployment.fullname" . -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ $fullName }}-gateway
+  labels:
+    app.kubernetes.io/name: {{ include "generic-deployment.name" . }}
+    helm.sh/chart: {{ include "generic-deployment.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: {{ include "generic-deployment.name" . }}
+    version: {{ .Values.versionLabel | default "0.2.0" }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  {{- if eq .Values.istioIngress.serverPort "80" }}
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+  {{- else if eq .Values.istioIngress.serverPort "443" }}
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS  
+  {{- end }}
+  {{- if .Values.istioIngress.tls }}
+    tls:
+      mode: {{ .Values.istioIngress.tls.mode }}
+      credentialName: {{ .Values.istioIngress.tls.credentialName }}
+  {{- end }}
+    hosts:
+  {{- range .Values.istioIngress.hosts }}
+    - {{ . }}
+  {{- end }}
+{{- end }}

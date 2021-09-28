@@ -1,0 +1,41 @@
+{{- if .Values.istioIngress.enabled }}
+{{- $fullName := include "generic-deployment.fullname" . -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "generic-deployment.name" . }}
+    helm.sh/chart: {{ include "generic-deployment.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: {{ include "generic-deployment.name" . }}
+    version: {{ .Values.versionLabel | default "0.2.0" }}
+spec:
+  hosts:
+  {{- range .Values.istioIngress.hosts }}
+    - {{ . }}
+  {{- end }}
+  gateways:
+  - {{ $fullName }}-gateway
+  http:
+  {{- range .Values.istioIngress.http }}
+    - match:
+    {{- range .match }}
+      - uri:
+          prefix: {{ .uri.prefix }}
+    {{- end }}
+    {{- if .rewrite }}
+      rewrite:
+        uri: {{ .rewrite.uri }}
+    {{- end }}
+      route:
+    {{- range .route }}
+        - destination:
+            port:
+              number: {{ .destination.port.number }}
+            host: {{ default $fullName .destination.host }}
+          weight: 100
+    {{- end }}
+  {{- end }}
+{{- end }}
