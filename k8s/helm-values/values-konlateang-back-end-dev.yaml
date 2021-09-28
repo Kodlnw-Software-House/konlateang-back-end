@@ -24,7 +24,7 @@ env:
   - name: JWTSECRET
     value: mysecret
   - name: ORIGIN
-    value: http://10.8.2.105
+    value: http://10.4.2.67:80
 
   # - name: SAMPLE_SHARED_CONFIG
   #   configmap:
