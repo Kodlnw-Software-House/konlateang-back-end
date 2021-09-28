@@ -1,13 +1,13 @@
-FROM node:14-alpine
+FROM gunfluenza/konlateang-back-end-node_modules
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY package.json ./
+# COPY package.json ./
 # RUN apk update 
-RUN npm install --verbose --unsafe-perm
+# RUN npm install --verbose --unsafe-perm
 
 # Bundle app source
 COPY . .
