@@ -6,6 +6,13 @@ backend:
   imagePullSecrets: konlateang-ghcr
   port: 3000
   healthCheckPath: "/health"
+ingress:
+#   host: dev.kodlnw-product.net
+#   path: "/back-end(/|$)(.*)"
+  serviceType: ClusterIP
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
 extraEnv:
   PORT: 3000
   MYSQL_URI: mysql://konlateang-admin:KonlateangAdmin@10.205.0.4/community_isolation_db
