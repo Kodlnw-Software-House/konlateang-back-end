@@ -67,14 +67,14 @@ affinity: {}
 # Waiting time in seconds for shutting down pod after sent SIGTERM
 terminationGracePeriodSeconds: 30
 
-services: {}
-  # - type: NodePort
-  #   annotation: {}
-  #   ports:
-  #     - name: sample1-service-port
-  #       protocol: TCP
-  #       port: 80
-  #       targetPort: 80
+services:
+  - type: ClusterIP
+    annotation: {}
+    ports:
+      - name: konlateang-back-end-port
+        protocol: TCP
+        port: 3000
+        targetPort: 3000
   #       nodePort: 32080
   #     - name: sample2-service-port
   #       protocol: TCP
@@ -95,13 +95,13 @@ services: {}
   #       targetPort: 8080
 
 serviceHeadless:
-  enabled: true
+  enabled: false
   # annotation: {}
-  ports:
-    - name: konlateang-back-end-port
-      protocol: TCP
-      port: 3000
-      targetPort: 3000
+  # ports:
+  #   - name: konlateang-back-end-port
+  #     protocol: TCP
+  #     port: 3000
+  #     targetPort: 3000
   #   - name: sample2-service-port
   #     protocol: TCP
   #     port: 8080
