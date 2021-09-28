@@ -17,4 +17,4 @@ extraEnv:
   PORT: 3000
   MYSQL_URI: mysql://konlateang-admin:KonlateangAdmin@10.205.0.4/community_isolation_db
   JWTSECRET: mysecret
-  ORIGIN: http://konlateang-service-front-end-dev:8080
+  ORIGIN: http://konlateang-service-front-end-dev
