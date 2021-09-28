@@ -24,7 +24,7 @@ env:
   - name: JWTSECRET
     value: mysecret
   - name: ORIGIN
-    value: http://konlateang-service-front-end-dev
+    value: http://konlateang-front-end-deployment-headless
 
   # - name: SAMPLE_SHARED_CONFIG
   #   configmap:
