@@ -30,7 +30,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ $fullName }}-headless
+                name: {{ $fullName }}
                 port:
                   number: {{ .backend.service.port.number }}
           {{- end }}
