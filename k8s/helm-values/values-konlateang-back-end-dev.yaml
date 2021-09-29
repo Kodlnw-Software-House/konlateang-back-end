@@ -149,13 +149,13 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
   # # ingressClassName: nginx
   rules:
     - host: dev.api.kodlnw-product.net
       http:
         paths:
-          - path: /*
+          - path: /
             pathType: Prefix
             backend:
               service:
