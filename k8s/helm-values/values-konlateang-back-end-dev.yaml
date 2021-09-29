@@ -24,7 +24,7 @@ env:
   - name: JWTSECRET
     value: mysecret
   - name: ORIGIN
-    value: http://dev.kodlnw-product.net
+    value: https://dev.kodlnw-product.net
 
   # - name: SAMPLE_SHARED_CONFIG
   #   configmap:
