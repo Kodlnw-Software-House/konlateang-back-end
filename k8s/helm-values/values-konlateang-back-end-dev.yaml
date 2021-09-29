@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/kodlnw-software-house/konlateang-back-end
   tag: dev
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 imagePullSecrets:
  - konlateang-ghcr
 
