@@ -50,7 +50,7 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
         hospital_id: req.hospital.hospital_id
     }})
     if(!isolation){
-        return res.status(404).send({status:'isolation id: '+req.hospital.hospital_id+' not found in your hospital'})
+        return res.status(404).send({status:'isolation id: '+req.params.id+' not found in your hospital'})
     }
     res.status(200).send({isolation})
 })
