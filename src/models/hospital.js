@@ -49,7 +49,7 @@ Hostipal.verifyLogin = async function(email,password){
         throw new Error('unable to login.');
     }
 
-    const isMatch = bcrypt.compare(password,hospitalResult.password);
+    const isMatch = await bcrypt.compare(password,hospitalResult.password);
     if(!isMatch){
         throw new Error('unable to login.');
     }
