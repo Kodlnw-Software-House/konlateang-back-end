@@ -44,8 +44,39 @@ router.get('/getIsolations',auth('HOSPITAL'),async(req,res)=>{
     res.status(200).send({isolation})
 })
 
+router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
+    const isolation = await Isolation.findOne({where:{
+        community_isolation_id: req.params.id,
+        hospital_id: req.hospital.hospital_id
+    }})
+    if(!isolation){
+        return res.status(404).send({status:'isolation id: '+req.hospital.hospital_id+' not found in your hospital'})
+    }
+    res.status(200).send({isolation})
+})
+
+router.post('/createIsolation',upload.array(),auth('HOSPITAL'),async(req,res)=>{
+    try{
+        await Isolation.create({
+            community_isolation_name:req.body.community_isolation_name,
+            address:req.body.address,
+            available_bed: req.body.available_bed,
+            hospital_id: req.hospital.hospital_id
+        })
+        return res.status(200).send()
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
 router.put('/edit/:id',upload.array(),auth('HOSPITAL'),async(req,res)=>{
     try{
+        const updates = Object.keys(req.body);
+        const allowedUpdates = ['community_isolation_name','address','available_bed'];
+        const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
+        if(!isValidOperation){
+            return res.status(400).send({ error:'Invalid updates!'});
+        }
         await Isolation.update(req.body,{
             where:{community_isolation_id:req.params.id}
         })
