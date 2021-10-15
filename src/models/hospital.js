@@ -12,7 +12,15 @@ const Hostipal = sequelize.define('hospital_adminstator',{
     hospital_name:{
         type: DataTypes.STRING(45),
         allowNull: false,
-        unique: 'hospital_name_UNIQUE'
+        unique: 'hospital_name_UNIQUE',
+        validate:{
+            isUnique: async function(value){
+                const hospital = await Hostipal.findOne({where:{hospital_name:value}})
+                if(hospital){
+                    throw new Error('hospital_name already in use!')
+                }
+            }
+        }
     },
     email:{
         type: DataTypes.STRING(45),

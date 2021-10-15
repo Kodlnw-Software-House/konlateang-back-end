@@ -12,7 +12,15 @@ const Isolation = sequelize.define('community_isolation',{
     community_isolation_name:{
         type: DataTypes.STRING(45),
         allowNull: false,
-        unique: 'community_isolation_name_UNIQUE'
+        unique: 'community_isolation_name_UNIQUE',
+        validate:{
+            isUnique: async function(value){
+                const isolation = await Isolation.findOne({where:{community_isolation_name:value}})
+                if(isolation){
+                    throw new Error('community_isolation_name already in use!')
+                }
+            }
+        }
     },
     address:{
         type: DataTypes.STRING(500),
