@@ -11,7 +11,7 @@ const Booking = require('../models/booking')
 const Status = require('../models/status')
 const {Patient} = require('../models/patient')
 const {auth} = require('../middleware/auth');
-const { Isolation } = require('../models/isolation');
+const { Isolation,IsolationImage } = require('../models/isolation');
 
 router.get('/getall',async (req,res)=>{
     try{
@@ -77,6 +77,10 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
 
 router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
     try{
+        req.query.pageNumber = !req.query.pageNumber ? 1 : req.query.pageNumber
+        const limit = parseInt(req.query.pageSize)
+        const offset = limit * (parseInt(req.query.pageNumber)-1)
+
         const isOwner = await Isolation.findOne({where:{
             community_isolation_id: req.params.id,
             hospital_id: req.hospital.hospital_id
@@ -86,7 +90,7 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
             return res.status(404).send({status:'isolation id: '+req.params.id+' not found in your hospital'})
         }
 
-        const booking = await Booking.findAll({
+        const booking = await Booking.findAndCountAll({
             include:[{
                 model:Patient,
                 attributes:{
@@ -104,8 +108,11 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
             },
             attributes:{
                 exclude:['patient_id','community_isolation_id','status_id']
-            }
+            },
+            offset,
+            limit
         })
+        booking.totalPage = Math.ceil(booking.count / limit)
         res.status(200).send({booking})
     }catch(error){
         res.status(500).send({error:error.message})
@@ -124,6 +131,83 @@ router.post('/createIsolation',upload.array(),auth('HOSPITAL'),async(req,res)=>{
     }catch(error){
         res.status(500).send({error:error.message})
     }
+})
+
+router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),async(req,res)=>{
+    try{
+    const isOwner = await Isolation.findOne({where:{
+        community_isolation_id: req.params.isolationId,
+        hospital_id: req.hospital.hospital_id
+    }})
+    
+    if(!isOwner){
+        return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+    }
+    
+    const count = await IsolationImage.count({where:{
+        community_isolation_id: req.params.isolationId
+    }})
+
+    if(count >= 3){
+        throw new Error('images are limit at 3 pictures.')
+    }
+    else if(req.files.length + count > 3){
+        throw new Error('images are limit at 3 pictures.')
+    }
+    else if(req.files.length <= 0 || req.files.length > 3){
+        throw new Error('images upload limit between 1 and 3 pictures.')
+    }
+
+    const images = []
+    req.files.forEach((file, index) => 
+        images.push({
+        image:'data:'+file.mimetype+';base64,'+file.buffer.toString('base64'),
+        index: index+count,
+        community_isolation_id: req.params.isolationId
+    }));
+        await IsolationImage.bulkCreate(images)
+        res.send({status:'upload images successful.'})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.get('/getImage/:isolationId/:index', async (req,res)=>{
+    try{
+    const image = await IsolationImage.findOne({
+        where: {
+            community_isolation_id: req.params.isolationId,
+            index: req.params.index
+        }
+    })
+    if(!image){
+        return res.status(404).send({error:'image not found'})
+    }
+    const rawfile = Buffer.from(image.image,'base64')
+    const m = /^data:(.+?);base64,(.+)$/.exec(rawfile)
+    if (!m) throw new Error()
+    const [ _, content_type, file_base64 ] = m
+    const file = Buffer.from(file_base64,'base64')
+    res.set({
+    'Content-Type': content_type,
+    'Content-Length': file.length,
+    })
+    res.end(file)
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.get('/getImageCount/:isolationId',(req,res)=>{
+    IsolationImage.count({
+        where:{
+            community_isolation_id: req.params.isolationId
+        }
+    }).then((count)=>{
+        res.send({count})
+    }).catch((error)=>{
+        res.status(500).send({error:error.message})
+    })
 })
 
 router.put('/edit/:id',upload.array(),auth('HOSPITAL'),async(req,res)=>{
