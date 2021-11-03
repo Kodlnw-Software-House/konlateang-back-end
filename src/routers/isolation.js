@@ -2,6 +2,7 @@ const express = require('express')
 
 const {Isolation} = require('../models/isolation')
 const {Hostipal} = require('../models/hospital')
+const Booking = require('../models/booking')
 const {Op} = require('sequelize')
 const router = new express.Router();
 
@@ -36,7 +37,15 @@ router.get('/getall',(req,res)=>{
         },
         limit,
         offset,
-    }).then((result)=>{
+    }).then(async (result)=>{
+        for (let i=0;i<result.rows.length;i++) {
+            const bookingLeft = await Booking.count({where:
+                {
+                    community_isolation_id: result.rows[i].community_isolation_id
+                }
+            })
+            result.rows[i].dataValues.bed_left = result.rows[i].available_bed - bookingLeft;
+        }
         result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
     }).catch((error)=>{

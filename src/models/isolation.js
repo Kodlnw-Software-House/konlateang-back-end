@@ -12,7 +12,15 @@ const Isolation = sequelize.define('community_isolation',{
     community_isolation_name:{
         type: DataTypes.STRING(45),
         allowNull: false,
-        unique: 'community_isolation_name_UNIQUE'
+        unique: 'community_isolation_name_UNIQUE',
+        validate:{
+            isUnique: async function(value){
+                const isolation = await Isolation.findOne({where:{community_isolation_name:value}})
+                if(isolation){
+                    throw new Error('community_isolation_name already in use!')
+                }
+            }
+        }
     },
     address:{
         type: DataTypes.STRING(500),
@@ -27,7 +35,13 @@ const Isolation = sequelize.define('community_isolation',{
 Isolation.belongsTo(Hostipal,{foreignKey:'hospital_id',as:'Hospital'})
 
 const IsolationImage = sequelize.define('community_isolation_image',{
-    image_name:{
+    image_id:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    image:{
         type: DataTypes.BLOB('long'),
         allowNull: false
     },
@@ -36,6 +50,7 @@ const IsolationImage = sequelize.define('community_isolation_image',{
         allowNull: false
     }
 })
+IsolationImage.removeAttribute('id')
 
 IsolationImage.belongsTo(Isolation,{foreignKey:'community_isolation_id'})
 
