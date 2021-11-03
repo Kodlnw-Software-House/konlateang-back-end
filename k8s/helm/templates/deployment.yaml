@@ -21,6 +21,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "generic-deployment.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        app/revision: "{{ .Release.Revision }}"
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
