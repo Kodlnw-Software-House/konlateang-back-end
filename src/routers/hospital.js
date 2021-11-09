@@ -53,12 +53,16 @@ router.get('/getIsolations',auth('HOSPITAL'),async(req,res)=>{
         })
         isolation[i].dataValues.bed_left = isolation[i].available_bed - bookingLeft;
 
-        const imageCount = await IsolationImage.count({
+        const imageIndex = await IsolationImage.findAll({
             where:{
                 community_isolation_id: isolation[i].community_isolation_id
-            }
+            },
+            attributes:{
+                exclude: ['image_id','image','community_isolation_id']
+            },
+            order:[['index', 'ASC']]
         })
-        isolation[i].dataValues.imageCount = imageCount
+        isolation[i].dataValues.image_index = imageIndex.map(u => u.get("index"))
     }
     res.status(200).send({isolation})
 })
@@ -80,12 +84,15 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
     })
     isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
 
-    const imageCount = await IsolationImage.count({
+    const imageIndex = await IsolationImage.findAll({
         where:{
             community_isolation_id: isolation.community_isolation_id
+        },
+        attributes:{
+            exclude:['image_id','image','community_isolation_id']
         }
     })
-    isolation.dataValues.imageCount = imageCount
+    isolation.dataValues.image_index = imageIndex.map(u => u.get("index"))
 
     res.status(200).send({isolation})
 })
@@ -134,7 +141,7 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
     }
 })
 
-router.post('/createIsolation',upload.array(),auth('HOSPITAL'),async(req,res)=>{
+router.post('/createIsolation',upload.array('files'),auth('HOSPITAL'),async(req,res)=>{
     try{
         const isolation = await Isolation.create({
             community_isolation_name:req.body.community_isolation_name,
@@ -159,27 +166,39 @@ router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),
         return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
     }
     
-    const count = await IsolationImage.count({where:{
+    const count = await IsolationImage.findAll({where:{
         community_isolation_id: req.params.isolationId
+    },
+    attributes:{
+        exclude: ['image','community_isolation_id']
     }})
 
-    if(count >= 3){
+
+    if(count.length >= 3){
         throw new Error('images are limit at 3 pictures.')
     }
-    else if(req.files.length + count > 3){
+    else if(req.files.length + count.length > 3){
         throw new Error('images are limit at 3 pictures.')
     }
     else if(req.files.length <= 0 || req.files.length > 3){
         throw new Error('images upload limit between 1 and 3 pictures.')
     }
 
+    const imageIndexArr = count.map(u => u.get("index"))
     const images = []
-    req.files.forEach((file, index) => 
-        images.push({
-        image:'data:'+file.mimetype+';base64,'+file.buffer.toString('base64'),
-        index: index+count,
-        community_isolation_id: req.params.isolationId
-    }));
+    let imageCount = 0;
+    
+    for (let i=0;i<3;i++) {
+        if(!imageIndexArr.includes(i) && req.files[imageCount]){
+            images.push({
+            image:'data:'+req.files[imageCount].mimetype+';base64,'+req.files[imageCount].buffer.toString('base64'),
+            index: i,
+            community_isolation_id: req.params.isolationId
+            })
+            imageCount++;
+        }
+    }
+    
         await IsolationImage.bulkCreate(images)
         res.send({status:'upload images successful.'})
     }catch(error){
