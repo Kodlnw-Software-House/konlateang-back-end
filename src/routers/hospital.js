@@ -281,6 +281,40 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
     })
 })
 
+router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.single('file'),async (req,res)=>{
+    try{
+        const isOwner = await Isolation.findOne({where:{
+            community_isolation_id: req.params.isolationId,
+            hospital_id: req.hospital.hospital_id
+        }})
+    
+        if(!isOwner){
+            return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+        }
+        
+        if(!req.params.isolationId || !req.params.index){
+            res.status(404).send({status:'file not found!'})
+        }else if(!req.file){
+            res.status(400).send({status:'required image file!'})
+        }
+        else{
+            const newImage = {
+                image:'data:'+req.file.mimetype+';base64,'+req.file.buffer.toString('base64')
+            }
+            await IsolationImage.update(newImage,{
+                where:{
+                    community_isolation_id: req.params.isolationId,
+                    index: req.params.index
+                }
+            })
+            res.send({status:'Update image successful!'})
+        }
+    }
+    catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
 router.delete('/logout', auth('HOSPITAL'),async (req,res)=>{
     try{
         await HospitalToken.destroy({
