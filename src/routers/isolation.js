@@ -46,12 +46,15 @@ router.get('/getall',(req,res)=>{
             })
             result.rows[i].dataValues.bed_left = result.rows[i].available_bed - bookingLeft;
 
-            const imageCount = await IsolationImage.count({where:
+            const imageIndex = await IsolationImage.findAll({where:
                 {
                     community_isolation_id: result.rows[i].community_isolation_id
+                },
+                attributes:{
+                    exclude: ['image_id','image','community_isolation_id']
                 }
             })
-            result.rows[i].dataValues.imageCount = imageCount;
+            result.rows[i].dataValues.image_index = imageIndex.map(u => u.get("index"));
         }
         result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
@@ -83,12 +86,15 @@ router.get('/get/:id', (req,res)=>{
         })
         isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
 
-        const imageCount = await IsolationImage.count({
+        const imageIndex = await IsolationImage.findAll({
             where:{
                 community_isolation_id: isolation.community_isolation_id
+            },
+            attributes:{
+                exclude: ['image_id','image','community_isolation_id']
             }
         })
-        isolation.dataValues.imageCount = imageCount;
+        isolation.dataValues.image_index = imageIndex.map(u => u.get("index"))
     
         res.status(200).send({isolation})
     }).catch((error)=>{
