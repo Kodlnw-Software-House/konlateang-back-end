@@ -161,6 +161,26 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
             return res.status(400).send({status:'you have already booking!'})
         }
 
+        const bookingLeft = await Booking.count({
+            where:{
+                community_isolation_id: req.body.community_isolation_id,
+                status_id: {
+                    [Op.or]:[2,4]
+                }
+            }
+        })
+
+        
+        const isolation = await Isolation.findOne({
+            where:{
+                community_isolation_id: req.body.community_isolation_id
+            }
+        })
+
+        if(bookingLeft==isolation.dataValues.available_bed){
+            return res.status(400).send({status:'This isolation is full!'})
+        }
+
         await Booking.create({
             status_id: 2,
             patient_id: req.patient.patient_id,
@@ -177,7 +197,7 @@ router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
         const bookings = await Booking.findAll({where:{
             patient_id: req.patient.patient_id
         },
-        include:[Isolation]
+        include:[Isolation,Status]
     }) 
         res.status(200).send({bookings})
     }catch(error){

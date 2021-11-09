@@ -41,7 +41,10 @@ router.get('/getall',(req,res)=>{
         for (let i=0;i<result.rows.length;i++) {
             const bookingLeft = await Booking.count({where:
                 {
-                    community_isolation_id: result.rows[i].community_isolation_id
+                    community_isolation_id: result.rows[i].community_isolation_id,
+                    status_id: {
+                        [Op.or]:[2,4]
+                    }
                 }
             })
             result.rows[i].dataValues.bed_left = result.rows[i].available_bed - bookingLeft;
@@ -52,7 +55,8 @@ router.get('/getall',(req,res)=>{
                 },
                 attributes:{
                     exclude: ['image_id','image','community_isolation_id']
-                }
+                },
+                order:[['index', 'ASC']]
             })
             result.rows[i].dataValues.image_index = imageIndex.map(u => u.get("index"));
         }
@@ -81,7 +85,10 @@ router.get('/get/:id', (req,res)=>{
     }).then(async (isolation)=>{
         const bookingLeft = await Booking.count({where:
             {
-                community_isolation_id: isolation.community_isolation_id
+                community_isolation_id: isolation.community_isolation_id,
+                status_id: {
+                    [Op.or]:[2,4]
+                }
             }
         })
         isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
@@ -92,7 +99,8 @@ router.get('/get/:id', (req,res)=>{
             },
             attributes:{
                 exclude: ['image_id','image','community_isolation_id']
-            }
+            },
+            order:[['index', 'ASC']]
         })
         isolation.dataValues.image_index = imageIndex.map(u => u.get("index"))
     
