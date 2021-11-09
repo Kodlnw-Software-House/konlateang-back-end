@@ -44,6 +44,7 @@ router.get('/getIsolations',auth('HOSPITAL'),async(req,res)=>{
     const isolation = await Isolation.findAll({where:{
         hospital_id: req.hospital.hospital_id
     }})
+
     for (let i=0;i<isolation.length;i++) {
         const bookingLeft = await Booking.count({where:
             {
@@ -51,6 +52,13 @@ router.get('/getIsolations',auth('HOSPITAL'),async(req,res)=>{
             }
         })
         isolation[i].dataValues.bed_left = isolation[i].available_bed - bookingLeft;
+
+        const imageCount = await IsolationImage.count({
+            where:{
+                community_isolation_id: isolation[i].community_isolation_id
+            }
+        })
+        isolation[i].dataValues.imageCount = imageCount
     }
     res.status(200).send({isolation})
 })
@@ -71,6 +79,13 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
         }
     })
     isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
+
+    const imageCount = await IsolationImage.count({
+        where:{
+            community_isolation_id: isolation.community_isolation_id
+        }
+    })
+    isolation.dataValues.imageCount = imageCount
 
     res.status(200).send({isolation})
 })
@@ -121,13 +136,13 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
 
 router.post('/createIsolation',upload.array(),auth('HOSPITAL'),async(req,res)=>{
     try{
-        await Isolation.create({
+        const isolation = await Isolation.create({
             community_isolation_name:req.body.community_isolation_name,
             address:req.body.address,
             available_bed: req.body.available_bed,
             hospital_id: req.hospital.hospital_id
         })
-        return res.status(200).send()
+        return res.status(200).send({community_isolation_id:isolation.community_isolation_id})
     }catch(error){
         res.status(500).send({error:error.message})
     }
@@ -264,6 +279,40 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
     }).catch((error)=>{
         res.status(500).send({error:error.message})
     })
+})
+
+router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.single('file'),async (req,res)=>{
+    try{
+        const isOwner = await Isolation.findOne({where:{
+            community_isolation_id: req.params.isolationId,
+            hospital_id: req.hospital.hospital_id
+        }})
+    
+        if(!isOwner){
+            return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+        }
+        
+        if(!req.params.isolationId || !req.params.index){
+            res.status(404).send({status:'file not found!'})
+        }else if(!req.file){
+            res.status(400).send({status:'required image file!'})
+        }
+        else{
+            const newImage = {
+                image:'data:'+req.file.mimetype+';base64,'+req.file.buffer.toString('base64')
+            }
+            await IsolationImage.update(newImage,{
+                where:{
+                    community_isolation_id: req.params.isolationId,
+                    index: req.params.index
+                }
+            })
+            res.send({status:'Update image successful!'})
+        }
+    }
+    catch(error){
+        res.status(500).send({error:error.message})
+    }
 })
 
 router.delete('/logout', auth('HOSPITAL'),async (req,res)=>{
