@@ -1,6 +1,6 @@
 const express = require('express')
 
-const {Isolation} = require('../models/isolation')
+const {Isolation, IsolationImage} = require('../models/isolation')
 const {Hostipal} = require('../models/hospital')
 const Booking = require('../models/booking')
 const {Op} = require('sequelize')
@@ -45,6 +45,13 @@ router.get('/getall',(req,res)=>{
                 }
             })
             result.rows[i].dataValues.bed_left = result.rows[i].available_bed - bookingLeft;
+
+            const imageCount = await IsolationImage.count({where:
+                {
+                    community_isolation_id: result.rows[i].community_isolation_id
+                }
+            })
+            result.rows[i].dataValues.imageCount = imageCount;
         }
         result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
@@ -68,7 +75,21 @@ router.get('/get/:id', (req,res)=>{
         attributes:{
             exclude: ['hospital_id']
         }
-    }).then((isolation)=>{
+    }).then(async (isolation)=>{
+        const bookingLeft = await Booking.count({where:
+            {
+                community_isolation_id: isolation.community_isolation_id
+            }
+        })
+        isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
+
+        const imageCount = await IsolationImage.count({
+            where:{
+                community_isolation_id: isolation.community_isolation_id
+            }
+        })
+        isolation.dataValues.imageCount = imageCount;
+    
         res.status(200).send({isolation})
     }).catch((error)=>{
         res.status(500).send({error:error.message})
