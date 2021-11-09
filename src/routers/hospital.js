@@ -343,6 +343,34 @@ router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.si
     }
 })
 
+router.delete('/deleteIsolationImage/:isolationId/:index', auth('HOSPITAL'),async (req,res)=>{
+    try{
+        const isOwner = await Isolation.findOne({where:{
+            community_isolation_id: req.params.isolationId,
+            hospital_id: req.hospital.hospital_id
+        }})
+    
+        if(!isOwner){
+            return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+        }
+
+        const deleteIsolation = await IsolationImage.destroy({
+            where:{
+                community_isolation_id: req.params.isolationId,
+                index: req.params.index
+            }
+        })
+
+        if(deleteIsolation === 0){
+            return res.status(404).send({status: "isolationImage not found!"});
+        }
+
+        res.status(200).send({ status: "delete successful!" });
+    }catch(error){
+        res.status(500).send({error:error.message});
+    }
+})
+
 router.delete('/logout', auth('HOSPITAL'),async (req,res)=>{
     try{
         await HospitalToken.destroy({
