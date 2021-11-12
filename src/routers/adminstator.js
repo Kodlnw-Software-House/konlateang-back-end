@@ -1,12 +1,14 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
 
 const router = new express.Router();
+const upload = multer()
 
 const {Admin,AdminToken} = require('../models/adminstator')
 const {auth} = require('../middleware/auth')
 
-router.post('/login',async (req,res)=>{
+router.post('/login',upload.array(),async (req,res)=>{
     try{
         const admin = await Admin.verifyLogin(req.body.email, req.body.password);
         const token = jwt.sign({email:admin.email}, process.env.JWTSECRET);
