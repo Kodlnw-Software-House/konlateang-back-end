@@ -170,4 +170,17 @@ router.get('/getAllIsolation',auth('ADMIN'),async(req,res)=>{
     })
 })
 
+router.get('/getBooking/:isolationId',auth('ADMIN'),async(req,res)=>{
+    try{
+        const booking = await Booking.findAll({
+            where:{
+                community_isolation_id: req.params.isolationId
+            }
+        })
+        res.status(200).send({booking})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
 module.exports = router;
