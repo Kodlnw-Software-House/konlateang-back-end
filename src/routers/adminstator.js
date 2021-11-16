@@ -47,7 +47,7 @@ router.get('/getAllPatient',auth('ADMIN'),async(req,res)=>{
             req.query.sortType ? req.query.sortType : "ASC",
           ];
 
-        const patient = await Patient.findAll({
+        const patient = await Patient.findAndCountAll({
             where:{
                 [Op.or]:[{
                     fname:{
@@ -67,7 +67,7 @@ router.get('/getAllPatient',auth('ADMIN'),async(req,res)=>{
             limit,
             order: [sortby]
         })
-
+        patient.totalPage = Math.ceil(patient.count / limit)
         res.status(200).send({patient})
     }catch(error){
         res.status(500).send({error:error.message})
@@ -102,5 +102,6 @@ router.put('/editPatient/:id',auth('ADMIN'),async(req,res)=>{
         res.status(500).send({error:error.message})
     }
 })
+
 
 module.exports = router;
