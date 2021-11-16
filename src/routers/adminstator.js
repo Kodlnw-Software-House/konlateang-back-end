@@ -42,7 +42,7 @@ router.get('/getAllPatient',auth('ADMIN'),async(req,res)=>{
     try{
         req.query.pageNumber = !req.query.pageNumber ? 1 : req.query.pageNumber
         const search = req.query.search ? req.query.search : ''
-        const searchCitizen = isNaN(parseInt(req.query.search)) ? '' : parseInt(req.query.search)
+        const searchCitizen = isNaN(parseInt(req.query.search)) ? req.query.search : parseInt(req.query.search)
         const limit = parseInt(req.query.pageSize)
         const offset = limit * (parseInt(req.query.pageNumber)-1)
         const sortby = [
