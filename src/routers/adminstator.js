@@ -63,6 +63,9 @@ router.get('/getAllPatient',auth('ADMIN'),async(req,res)=>{
                     }
                 }]
             },
+            attributes:{
+                exclude:['password','avatar']
+            },
             offset,
             limit,
             order: [sortby]
