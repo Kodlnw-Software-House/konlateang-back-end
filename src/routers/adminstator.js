@@ -26,6 +26,11 @@ router.post('/login',upload.array(),async (req,res)=>{
     }
 })
 
+router.get('/me',auth('ADMIN'),async(req,res)=>{
+    delete req.admin.dataValues.password
+    res.status(200).send({admin:req.admin})
+})
+
 router.delete('/logout',auth('ADMIN'),async(req,res)=>{
     try{
         await AdminToken.destroy({where:{
