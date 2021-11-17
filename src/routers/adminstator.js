@@ -181,6 +181,49 @@ router.get('/getAllIsolation',auth('ADMIN'),async(req,res)=>{
     })
 })
 
+router.get('/getIsolation/:id', (req,res)=>{
+    Isolation.findOne({
+        where:{
+            community_isolation_id: req.params.id
+        },
+        include:[{
+            model: Hostipal,
+            as:'Hospital',
+            attributes:{
+                exclude: ['password']
+            }
+        }],
+        attributes:{
+            exclude: ['hospital_id']
+        }
+    }).then(async (isolation)=>{
+        const bookingLeft = await Booking.count({where:
+            {
+                community_isolation_id: isolation.community_isolation_id,
+                status_id: {
+                    [Op.or]:[2,4]
+                }
+            }
+        })
+        isolation.dataValues.bed_left = isolation.available_bed - bookingLeft;
+
+        const imageIndex = await IsolationImage.findAll({
+            where:{
+                community_isolation_id: isolation.community_isolation_id
+            },
+            attributes:{
+                exclude: ['image_id','image','community_isolation_id']
+            },
+            order:[['index', 'ASC']]
+        })
+        isolation.dataValues.image_index = imageIndex.map(u => u.get("index"))
+    
+        res.status(200).send({isolation})
+    }).catch((error)=>{
+        res.status(500).send({error:error.message})
+    })
+})
+
 router.get('/getBooking/:isolationId',auth('ADMIN'),async(req,res)=>{
     try{
         const booking = await Booking.findAll({
