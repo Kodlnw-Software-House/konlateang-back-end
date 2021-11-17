@@ -12,6 +12,7 @@ const {auth} = require('../middleware/auth')
 const {Isolation,IsolationImage} = require('../models/isolation')
 const {Hostipal} = require('../models/hospital')
 const Booking = require('../models/booking')
+const Status = require('../models/status')
 
 router.post('/login',upload.array(),async (req,res)=>{
     try{
@@ -181,7 +182,7 @@ router.get('/getAllIsolation',auth('ADMIN'),async(req,res)=>{
     })
 })
 
-router.get('/getIsolation/:id', (req,res)=>{
+router.get('/getIsolation/:id', auth('ADMIN'), (req,res)=>{
     Isolation.findOne({
         where:{
             community_isolation_id: req.params.id
@@ -224,13 +225,29 @@ router.get('/getIsolation/:id', (req,res)=>{
     })
 })
 
-router.get('/getBooking/:isolationId',auth('ADMIN'),async(req,res)=>{
+router.get('/getBooking/:id',auth('ADMIN'),async(req,res)=>{
     try{
-        const booking = await Booking.findAll({
+        req.query.pageNumber = !req.query.pageNumber ? 1 : req.query.pageNumber
+        const limit = parseInt(req.query.pageSize)
+        const offset = limit * (parseInt(req.query.pageNumber)-1)
+
+        const booking = await Booking.findAndCountAll({
+            include:[{
+                model:Patient,
+                attributes:{
+                    exclude:['password','avatar']
+                }
+            },Status],
             where:{
-                community_isolation_id: req.params.isolationId
-            }
+                community_isolation_id: req.params.id,
+            },
+            attributes:{
+                exclude:['patient_id','community_isolation_id','status_id']
+            },
+            offset,
+            limit
         })
+        booking.totalPage = Math.ceil(booking.count / limit)
         res.status(200).send({booking})
     }catch(error){
         res.status(500).send({error:error.message})
