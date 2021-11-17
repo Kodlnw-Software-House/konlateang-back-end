@@ -94,7 +94,7 @@ router.put('/editPatient/:id',auth('ADMIN'),async(req,res)=>{
         }
     
         const updates = Object.keys(req.body)
-        const allowedUpdates = ['fname','lname','citizen_id','dob','address','tel','gender']
+        const allowedUpdates = ['fname','lname','citizen_id','dob','address','tel','gender','age']
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update))
         if(!isValidOperation){
             return res.status(400).send({ error:'Invalid updates!'});
