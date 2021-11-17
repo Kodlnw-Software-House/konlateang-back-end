@@ -254,4 +254,64 @@ router.get('/getBooking/:id',auth('ADMIN'),async(req,res)=>{
     }
 })
 
+router.put('/editIsolation/:id',upload.array(),auth('ADMIN'),async(req,res)=>{
+    try{
+        const updates = Object.keys(req.body);
+        const allowedUpdates = ['community_isolation_name','address','available_bed'];
+        const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
+        
+        if(!isValidOperation){
+            return res.status(400).send({ error:'Invalid updates!'});
+        }
+
+        const hasAvailableBed = updates.includes('available_bed')
+        if(hasAvailableBed){
+            const count = await Booking.count({
+                where:{
+                    community_isolation_id:req.params.id
+                }
+            })
+            if(req.body.available_bed<count){
+                return res.status(400).send({error:'available_bed must not less than original.'})
+            }
+        }
+
+        await Isolation.update(req.body,{
+            where:{community_isolation_id:req.params.id}
+        })
+        res.status(200).send({status:'update successful.'})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+    
+})
+
+router.put('/editStatus/:bookingId',auth('ADMIN'),async(req,res)=>{
+    try{
+        const booking = await Booking.findOne({
+            where:{
+                booking_id: req.params.bookingId
+            }
+        })
+        
+        const avoidStatus = [1,3]
+        if(avoidStatus.includes(booking.status_id)){
+            return res.status(400).send({error:'Booking id: '+req.params.bookingId+' not allow to update because status is done or booking failed.'})
+        }
+    
+        const updatedBooking = await Booking.update({status_id:req.query.statusId},{
+            where:{
+                booking_id: req.params.bookingId
+            }
+        })
+    
+        if(updatedBooking[0]===0){
+            return res.status(400).send({status:'noting to update.'})
+        }
+        res.status(200).send({status:'update successful.'})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
 module.exports = router;
