@@ -314,4 +314,66 @@ router.put('/editStatus/:bookingId',auth('ADMIN'),async(req,res)=>{
     }
 })
 
+router.post('/uploadImage/:isolationId', auth('ADMIN'),upload.array('files'),async(req,res)=>{
+    try{
+    
+    const count = await IsolationImage.findAll({where:{
+        community_isolation_id: req.params.isolationId
+    },
+    attributes:{
+        exclude: ['image','community_isolation_id']
+    }})
+
+
+    if(count.length >= 3){
+        throw new Error('images are limit at 3 pictures.')
+    }
+    else if(req.files.length + count.length > 3){
+        throw new Error('images are limit at 3 pictures.')
+    }
+    else if(req.files.length <= 0 || req.files.length > 3){
+        throw new Error('images upload limit between 1 and 3 pictures.')
+    }
+
+    const imageIndexArr = count.map(u => u.get("index"))
+    const images = []
+    let imageCount = 0;
+    
+    for (let i=0;i<3;i++) {
+        if(!imageIndexArr.includes(i) && req.files[imageCount]){
+            images.push({
+            image:'data:'+req.files[imageCount].mimetype+';base64,'+req.files[imageCount].buffer.toString('base64'),
+            index: i,
+            community_isolation_id: req.params.isolationId
+            })
+            imageCount++;
+        }
+    }
+    
+        await IsolationImage.bulkCreate(images)
+        res.send({status:'upload images successful.'})
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.delete('/deleteIsolationImage/:isolationId/:index', auth('ADMIN'),async (req,res)=>{
+    try{
+        const deleteIsolation = await IsolationImage.destroy({
+            where:{
+                community_isolation_id: req.params.isolationId,
+                index: req.params.index
+            }
+        })
+
+        if(deleteIsolation === 0){
+            return res.status(404).send({status: "isolationImage not found!"});
+        }
+
+        res.status(200).send({ status: "delete successful!" });
+    }catch(error){
+        res.status(500).send({error:error.message});
+    }
+})
+
 module.exports = router;
