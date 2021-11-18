@@ -205,4 +205,42 @@ router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
     }
 })
 
+router.get('/checkEmailInUse',async(req,res)=>{
+    try{
+        const email = await Patient.findOne({where:{email:req.body.email}})
+        console.log(email)
+        if(email){
+            return res.status(400).send({error:req.body.email+' are already in use!'})
+        }
+        res.status(200).send()
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.get('/checkEmailInUse',async(req,res)=>{
+    try{
+        const email = await Patient.findOne({where:{email:req.body.email}})
+        console.log(email)
+        if(email){
+            return res.status(400).send({error:req.body.email+' are already in use!'})
+        }
+        res.status(200).send()
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
+router.get('/checkCitizenIdInUse',async(req,res)=>{
+    try{
+        const citizenId = await Patient.findOne({where:{citizen_id:req.body.citizen_id}})
+        if(citizenId){
+            return res.status(400).send({error:req.body.citizen_id+' are already in use!'})
+        }
+        res.status(200).send()
+    }catch(error){
+        res.status(500).send({error:error.message})
+    }
+})
+
  module.exports = router
