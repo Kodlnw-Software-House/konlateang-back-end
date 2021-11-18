@@ -7,7 +7,6 @@ const adminRouter = require('./routers/adminstator')
 const hospitalRouter = require('./routers/hospital')
 const patientRouter = require('./routers/patient')
 const isolationRouter = require('./routers/isolation')
-const bookingRouter = require('./routers/booking')
 
 const port = process.env.PORT
 
