@@ -295,6 +295,17 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
         return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
     }
 
+    const booking = await Booking.findOne({
+        where:{
+            booking_id: req.params.bookingId
+        }
+    })
+    
+    const avoidStatus = [1,3]
+    if(avoidStatus.includes(booking.status_id)){
+        return res.status(400).send({error:'Booking id: '+req.params.bookingId+' not allow to update because status is done or booking failed.'})
+    }
+
     await Booking.update({status_id:req.query.statusId},{
         where:{
             booking_id: req.params.bookingId

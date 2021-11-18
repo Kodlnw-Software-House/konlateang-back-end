@@ -23,7 +23,6 @@ app.use('/admin',adminRouter)
 app.use('/hospital',hospitalRouter)
 app.use('/patient',patientRouter)
 app.use('/isolation',isolationRouter)
-app.use('/booking',bookingRouter)
 
 app.get('/health',(req,res)=>{
     res.send({status:'This service is healthy.'})

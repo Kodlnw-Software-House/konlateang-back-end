@@ -11,6 +11,11 @@ router.get('/getall',(req,res)=>{
     const search = req.query.search ? req.query.search : ''
     const limit = parseInt(req.query.pageSize)
     const offset = limit * (parseInt(req.query.pageNumber)-1)
+    const sortby = [
+        req.query.sortBy ? req.query.sortBy : "community_isolation_id",
+        req.query.sortType ? req.query.sortType : "ASC",
+      ];
+
     Isolation.findAndCountAll({
         where:{
             [Op.or]:[{
@@ -37,6 +42,7 @@ router.get('/getall',(req,res)=>{
         },
         limit,
         offset,
+        order: [sortby]
     }).then(async (result)=>{
         for (let i=0;i<result.rows.length;i++) {
             const bookingLeft = await Booking.count({where:
