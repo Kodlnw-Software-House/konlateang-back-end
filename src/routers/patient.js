@@ -207,23 +207,9 @@ router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
 
 router.get('/checkEmailInUse',async(req,res)=>{
     try{
-        const email = await Patient.findOne({where:{email:req.body.email}})
-        console.log(email)
+        const email = await Patient.findOne({where:{email:req.query.email}})
         if(email){
-            return res.status(400).send({error:req.body.email+' are already in use!'})
-        }
-        res.status(200).send()
-    }catch(error){
-        res.status(500).send({error:error.message})
-    }
-})
-
-router.get('/checkEmailInUse',async(req,res)=>{
-    try{
-        const email = await Patient.findOne({where:{email:req.body.email}})
-        console.log(email)
-        if(email){
-            return res.status(400).send({error:req.body.email+' are already in use!'})
+            return res.status(400).send({error:req.query.email+' are already in use!'})
         }
         res.status(200).send()
     }catch(error){
@@ -233,9 +219,9 @@ router.get('/checkEmailInUse',async(req,res)=>{
 
 router.get('/checkCitizenIdInUse',async(req,res)=>{
     try{
-        const citizenId = await Patient.findOne({where:{citizen_id:req.body.citizen_id}})
+        const citizenId = await Patient.findOne({where:{citizen_id:req.query.citizen_id}})
         if(citizenId){
-            return res.status(400).send({error:req.body.citizen_id+' are already in use!'})
+            return res.status(400).send({error:req.query.citizen_id+' are already in use!'})
         }
         res.status(200).send()
     }catch(error){
