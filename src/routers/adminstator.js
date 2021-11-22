@@ -326,13 +326,13 @@ router.post('/uploadImage/:isolationId', auth('ADMIN'),upload.array('files'),asy
 
 
     if(count.length >= 3){
-        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
+        return res.status(400).send({error:'รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป'})
     }
     else if(req.files.length + count.length > 3){
-        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
+        return res.status(400).send({error:'รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป'})
     }
     else if(req.files.length <= 0 || req.files.length > 3){
-        throw new Error('การอัพโหลดรูปภาพจะต้องมี 1 ถึง 3 ภาพขึ้นไป')
+        return res.status(400).send({error:'การอัพโหลดรูปภาพจะต้องมี 1 ถึง 3 ภาพขึ้นไป'})
     }
 
     const imageIndexArr = count.map(u => u.get("index"))
