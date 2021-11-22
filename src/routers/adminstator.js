@@ -306,7 +306,7 @@ router.put('/editStatus/:bookingId',auth('ADMIN'),async(req,res)=>{
         })
     
         if(updatedBooking[0]===0){
-            return res.status(400).send({status:'ไม่มีการอัพเดตเกิดขึ้น'})
+            return res.status(400).send({error:'ไม่มีการอัพเดตเกิดขึ้น'})
         }
         res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }catch(error){
@@ -367,7 +367,7 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('ADMIN'),async (
         })
 
         if(deleteIsolation === 0){
-            return res.status(404).send({status: 'ไม่พบข้อมูลรูปภาพในระบบ'});
+            return res.status(404).send({error: 'ไม่พบข้อมูลรูปภาพในระบบ'});
         }
 
         res.status(200).send({ status: 'ลบรูปภาพเสร็จสิ้น' });

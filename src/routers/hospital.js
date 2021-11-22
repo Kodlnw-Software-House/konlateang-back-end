@@ -79,7 +79,7 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
     }})
 
     if(!isolation){
-        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
+        return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
     }
 
     const bookingLeft = await Booking.count({where:
@@ -118,7 +118,7 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
         }})
 
         if(!isOwner){
-            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
+            return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
         }
 
         const booking = await Booking.findAndCountAll({
@@ -172,7 +172,7 @@ router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),
     }})
     
     if(!isOwner){
-        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
+        return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
     }
     
     const count = await IsolationImage.findAll({where:{
@@ -292,7 +292,7 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
     }})
 
     if(!isOwner){
-        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
+        return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
     }
 
     const booking = await Booking.findOne({
@@ -328,13 +328,13 @@ router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.si
         }})
     
         if(!isOwner){
-            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
+            return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
         }
         
         if(!req.params.isolationId || !req.params.index){
-            res.status(404).send({status:'ไม่พบรูปภาพในระบบ'})
+            res.status(404).send({error:'ไม่พบรูปภาพในระบบ'})
         }else if(!req.file){
-            res.status(400).send({status:'ต้องการรูปภาพ!'})
+            res.status(400).send({error:'ต้องการรูปภาพ!'})
         }
         else{
             const newImage = {
@@ -362,7 +362,7 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('HOSPITAL'),asyn
         }})
     
         if(!isOwner){
-            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
+            return res.status(404).send({error:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
         }
 
         const deleteIsolation = await IsolationImage.destroy({
@@ -373,7 +373,7 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('HOSPITAL'),asyn
         })
 
         if(deleteIsolation === 0){
-            return res.status(404).send({status: 'ไม่พบข้อมูลรูปภาพในระบบ'});
+            return res.status(404).send({error: 'ไม่พบข้อมูลรูปภาพในระบบ'});
         }
 
         res.status(200).send({ status: 'ลบรูปภาพเสร็จสิ้น' });

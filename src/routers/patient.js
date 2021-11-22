@@ -118,7 +118,7 @@ router.post('/upload',auth('PATIENT'),uploadAvatar.single('avatar'), async(req,r
             }
         })
         if(uploadAvatar[0]===0){
-            return res.status(400).send('ไม่สามารถอัพโหลดรูปภาพได้โปรดลองในภายหลัง')
+            return res.status(400).send({error:'ไม่สามารถอัพโหลดรูปภาพได้โปรดลองในภายหลัง'})
         }
         res.status(200).send({status:'อัพโหลดรูปภาพเสร็จสิ้น!'})
     }catch(error){
@@ -158,7 +158,7 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
             }
         }})
         if(checkHasBooking.length !==0){
-            return res.status(400).send({status:'คุณได้จองศุนย์พักคอยเรียบร้อยแล้ว!'})
+            return res.status(400).send({error:'คุณได้จองศุนย์พักคอยเรียบร้อยแล้ว!'})
         }
 
         const bookingLeft = await Booking.count({
@@ -178,7 +178,7 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
         })
 
         if(bookingLeft==isolation.dataValues.available_bed){
-            return res.status(400).send({status:'ศุนย์พักคอยนี้เต็มเรียบร้อยแล้ว!'})
+            return res.status(400).send({error:'ศุนย์พักคอยนี้เต็มเรียบร้อยแล้ว!'})
         }
 
         await Booking.create({
