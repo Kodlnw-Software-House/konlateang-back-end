@@ -54,7 +54,7 @@ const uploadAvatar = multer({
      await PatientToken.create({token,patient_id:patient.patient_id});
      res.status(201).send({patient,token,tokenType:'Bearer'});
      }catch(error){
-         res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
+         res.status(400).send({error:error.message});
      }
  })
  router.delete('/logout',auth('PATIENT'),async (req,res)=>{

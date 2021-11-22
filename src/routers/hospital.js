@@ -34,7 +34,7 @@ router.post('/login',async (req,res)=>{
         await HospitalToken.create({token,hospital_id:hospital.hospital_id});
         res.status(201).send({hospital,token,tokenType:'Bearer'});
     }catch(error){
-        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
+        res.status(400).send({error:error.message});
     }
 })
 

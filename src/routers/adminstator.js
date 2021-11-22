@@ -23,7 +23,7 @@ router.post('/login',upload.array(),async (req,res)=>{
         res.status(201).send({admin,token,tokenType:'Bearer'});
     }
     catch(error){
-        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
+        res.status(400).send({error:error.message});
     }
 })
 
