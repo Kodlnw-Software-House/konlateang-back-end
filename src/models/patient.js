@@ -53,7 +53,7 @@ const Patient = sequelize.define('patient',{
                     },
                     attributes:['patient_id']}).then((patient)=>{
                         if (patient.length != 0)
-                        next(new Error('citizen id already in use!'));
+                        next(new Error('ฟิลด์ citizen_id ถูกใช้ไปแล้ว !'));
                         next();
                     })
             }
@@ -111,12 +111,12 @@ Patient.verifyLogin = async function(email,password){
         exclude:['avatar']
     }});
     if(!patientResult){
-        throw new Error('unable to login.');
+        throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
     }
     
     const isMatch = await bcrypt.compare(password,patientResult.password);
     if(!isMatch){
-        throw new Error('unable to login.');
+        throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
     }
 
     return patientResult;

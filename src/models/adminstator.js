@@ -44,12 +44,12 @@ Admin.verifyLogin = async function (email,password){
     const adminResult = await Admin.findOne({where:{email}});
 
             if(!adminResult){
-                throw new Error('Unable to login');
+                throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
             }
 
             const isMatch = await bcrypt.compare(password,adminResult.password);
             if(!isMatch){
-                throw new Error('Unable to login');
+                throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
             }
 
             return adminResult;

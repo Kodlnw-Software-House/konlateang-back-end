@@ -32,7 +32,7 @@ const uploadAvatar = multer({
         }});
         res.status(200).send({patients})
     }catch(error){
-        res.status(500).send()
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
  })
 
@@ -54,7 +54,7 @@ const uploadAvatar = multer({
      await PatientToken.create({token,patient_id:patient.patient_id});
      res.status(201).send({patient,token,tokenType:'Bearer'});
      }catch(error){
-         res.status(400).send({error:error.message});
+         res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
      }
  })
  router.delete('/logout',auth('PATIENT'),async (req,res)=>{
@@ -62,7 +62,7 @@ const uploadAvatar = multer({
         await PatientToken.destroy({where:{token:req.token}});
         res.status(200).send();
     }catch(error){
-        res.status(500).send({error:error.message});
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
  })
 
@@ -74,7 +74,7 @@ router.post('/register',upload.array(),async (req,res)=>{
         await PatientToken.create({token,patient_id:newPatient.patient_id});
         res.status(201).send({patient:newPatient,token,tokenType:'Bearer'});
     }catch(error){
-        res.status(400).send({error:error.message});
+        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -84,7 +84,7 @@ router.put('/edit',upload.array(),auth('PATIENT'), async (req,res)=>{
         const allowedUpdates = ['address','tel','password'];
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
         if(!isValidOperation){
-            return res.status(400).send({ error:'Invalid updates!'});
+            return res.status(400).send({ error:'ข้อมูลการอัพเดตไม่ถูกต้อง!'});
         }
         req.body.password = !req.body.password ? undefined : await bcrypt.hash(req.body.password,8);
 
@@ -104,7 +104,7 @@ router.put('/edit',upload.array(),auth('PATIENT'), async (req,res)=>{
         })
         res.status(200).send({editedPatient})
     }catch(error){
-        res.status(400).send({error:error.message});
+        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -118,11 +118,11 @@ router.post('/upload',auth('PATIENT'),uploadAvatar.single('avatar'), async(req,r
             }
         })
         if(uploadAvatar[0]===0){
-            return res.status(400).send('Upload file Failed.')
+            return res.status(400).send('ไม่สามารถอัพโหลดรูปภาพได้โปรดลองในภายหลัง')
         }
-        res.status(200).send({status:'Upload file successful !'})
+        res.status(200).send({status:'อัพโหลดรูปภาพเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -132,7 +132,7 @@ router.get('/avatar/:id',async(req,res)=>{
         patient_id: req.params.id
     }})
     if(!patient.avatar){
-        return res.status(500).send({error:'image not found'})
+        return res.status(500).send({error:'ไม่พบข้อมูลรูปภาพในระบบ'})
     }
     const rawfile = Buffer.from(patient.avatar,'base64')
     const m = /^data:(.+?);base64,(.+)$/.exec(rawfile)
@@ -145,7 +145,7 @@ router.get('/avatar/:id',async(req,res)=>{
     })
     res.end(file)
         }catch(error){
-            res.status(500).send({error:error.message})
+            res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
         }
 })
 
@@ -158,7 +158,7 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
             }
         }})
         if(checkHasBooking.length !==0){
-            return res.status(400).send({status:'you have already booking!'})
+            return res.status(400).send({status:'คุณได้จองศุนย์พักคอยเรียบร้อยแล้ว!'})
         }
 
         const bookingLeft = await Booking.count({
@@ -178,7 +178,7 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
         })
 
         if(bookingLeft==isolation.dataValues.available_bed){
-            return res.status(400).send({status:'This isolation is full!'})
+            return res.status(400).send({status:'ศุนย์พักคอยนี้เต็มเรียบร้อยแล้ว!'})
         }
 
         await Booking.create({
@@ -188,7 +188,7 @@ router.post('/booking',auth('PATIENT'),async (req,res)=>{
         })
         res.status(200).send()
     }catch(error){
-        res.status(500).send({error})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -201,7 +201,7 @@ router.get('/getBookings',auth('PATIENT'),async (req,res)=>{
     }) 
         res.status(200).send({bookings})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -209,11 +209,11 @@ router.get('/checkEmailInUse',async(req,res)=>{
     try{
         const email = await Patient.findOne({where:{email:req.query.email}})
         if(email){
-            return res.status(400).send({error:req.query.email+' are already in use!'})
+            return res.status(400).send({error:req.query.email+' ถูกใช้ไปแล้ว!'})
         }
         res.status(200).send()
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -221,11 +221,11 @@ router.get('/checkCitizenIdInUse',async(req,res)=>{
     try{
         const citizenId = await Patient.findOne({where:{citizen_id:req.query.citizen_id}})
         if(citizenId){
-            return res.status(400).send({error:req.query.citizen_id+' are already in use!'})
+            return res.status(400).send({error:req.query.citizen_id+' ถูกใช้ไปแล้ว!'})
         }
         res.status(200).send()
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 

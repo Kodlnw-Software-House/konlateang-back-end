@@ -69,7 +69,7 @@ router.get('/getall',(req,res)=>{
         result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 
@@ -112,7 +112,7 @@ router.get('/get/:id', (req,res)=>{
     
         res.status(200).send({isolation})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 

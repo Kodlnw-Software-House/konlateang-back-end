@@ -23,7 +23,7 @@ router.post('/login',upload.array(),async (req,res)=>{
         res.status(201).send({admin,token,tokenType:'Bearer'});
     }
     catch(error){
-        res.status(400).send({error:error.message});
+        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -40,7 +40,7 @@ router.delete('/logout',auth('ADMIN'),async(req,res)=>{
         res.status(200).send();
     }
     catch(error){
-        res.status(500).send({error:error.message});
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -82,7 +82,7 @@ router.get('/getAllPatient',auth('ADMIN'),async(req,res)=>{
         patient.totalPage = Math.ceil(patient.count / limit)
         res.status(200).send({patient})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -96,22 +96,22 @@ router.put('/editPatient/:id',auth('ADMIN'),async(req,res)=>{
             }
         })
         if(!patient){
-            return res.status(404).send({ error:'patient id '+req.params.id+' not found!'});
+            return res.status(404).send({ error:'ผู้ป่วยไอดี : '+req.params.id+' ไม่พบข้อมูลภายในระบบ!'});
         }
     
         const updates = Object.keys(req.body)
         const allowedUpdates = ['fname','lname','citizen_id','dob','address','tel','gender','age']
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update))
         if(!isValidOperation){
-            return res.status(400).send({ error:'Invalid updates!'});
+            return res.status(400).send({ error:'ข้อมูลการอัพเดตไม่ถูกต้อง!'});
         }
     
         await Patient.update(req.body,{where:{
             patient_id: req.params.id
         }})
-        res.status(200).send({status:'update successful !'})
+        res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -178,7 +178,7 @@ router.get('/getAllIsolation',auth('ADMIN'),async(req,res)=>{
         result.totalPage = Math.ceil(result.count / limit)
         res.status(200).send({result})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 
@@ -221,7 +221,7 @@ router.get('/getIsolation/:id', auth('ADMIN'), (req,res)=>{
     
         res.status(200).send({isolation})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 
@@ -250,7 +250,7 @@ router.get('/getBooking/:id',auth('ADMIN'),async(req,res)=>{
         booking.totalPage = Math.ceil(booking.count / limit)
         res.status(200).send({booking})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -261,7 +261,7 @@ router.put('/editIsolation/:id',upload.array(),auth('ADMIN'),async(req,res)=>{
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
         
         if(!isValidOperation){
-            return res.status(400).send({ error:'Invalid updates!'});
+            return res.status(400).send({ error:'ข้อมูลการอัพเดตไม่ถูกต้อง!'});
         }
 
         const hasAvailableBed = updates.includes('available_bed')
@@ -272,16 +272,16 @@ router.put('/editIsolation/:id',upload.array(),auth('ADMIN'),async(req,res)=>{
                 }
             })
             if(req.body.available_bed<count){
-                return res.status(400).send({error:'available_bed must not less than original.'})
+                return res.status(400).send({error:'จำนวนเตียงที่ใส่จะต้องไม่น้อยกว่าของเดิม!'})
             }
         }
 
         await Isolation.update(req.body,{
             where:{community_isolation_id:req.params.id}
         })
-        res.status(200).send({status:'update successful.'})
+        res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
     
 })
@@ -296,7 +296,7 @@ router.put('/editStatus/:bookingId',auth('ADMIN'),async(req,res)=>{
         
         const avoidStatus = [1,3]
         if(avoidStatus.includes(booking.status_id)){
-            return res.status(400).send({error:'Booking id: '+req.params.bookingId+' not allow to update because status is done or booking failed.'})
+            return res.status(400).send({error:'Booking id: '+req.params.bookingId+' ไม่อนุญาตให้อัตเดตเนื่องจากสถานะเป็น done หรือ booking failed แล้ว'})
         }
     
         const updatedBooking = await Booking.update({status_id:req.query.statusId},{
@@ -306,11 +306,11 @@ router.put('/editStatus/:bookingId',auth('ADMIN'),async(req,res)=>{
         })
     
         if(updatedBooking[0]===0){
-            return res.status(400).send({status:'noting to update.'})
+            return res.status(400).send({status:'ไม่มีการอัพเดตเกิดขึ้น'})
         }
-        res.status(200).send({status:'update successful.'})
+        res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -326,13 +326,13 @@ router.post('/uploadImage/:isolationId', auth('ADMIN'),upload.array('files'),asy
 
 
     if(count.length >= 3){
-        throw new Error('images are limit at 3 pictures.')
+        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
     }
     else if(req.files.length + count.length > 3){
-        throw new Error('images are limit at 3 pictures.')
+        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
     }
     else if(req.files.length <= 0 || req.files.length > 3){
-        throw new Error('images upload limit between 1 and 3 pictures.')
+        throw new Error('การอัพโหลดรูปภาพจะต้องมี 1 ถึง 3 ภาพขึ้นไป')
     }
 
     const imageIndexArr = count.map(u => u.get("index"))
@@ -351,9 +351,9 @@ router.post('/uploadImage/:isolationId', auth('ADMIN'),upload.array('files'),asy
     }
     
         await IsolationImage.bulkCreate(images)
-        res.send({status:'upload images successful.'})
+        res.send({status:'อัพโหลดรูปภาพเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -367,12 +367,12 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('ADMIN'),async (
         })
 
         if(deleteIsolation === 0){
-            return res.status(404).send({status: "isolationImage not found!"});
+            return res.status(404).send({status: 'ไม่พบข้อมูลรูปภาพในระบบ'});
         }
 
-        res.status(200).send({ status: "delete successful!" });
+        res.status(200).send({ status: 'ลบรูปภาพเสร็จสิ้น' });
     }catch(error){
-        res.status(500).send({error:error.message});
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 

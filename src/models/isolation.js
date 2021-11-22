@@ -17,7 +17,7 @@ const Isolation = sequelize.define('community_isolation',{
             isUnique: async function(value){
                 const isolation = await Isolation.findOne({where:{community_isolation_name:value}})
                 if(isolation){
-                    throw new Error('community_isolation_name already in use!')
+                    throw new Error('ฟิลด์ community_isolation_name ถูกใช้ไปแล้ว!')
                 }
             }
         }

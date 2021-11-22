@@ -53,7 +53,7 @@ const auth = function(role){
 
         next();
         }catch(error){
-            res.status(401).send({error:'Please authenticate.'})
+            res.status(401).send({error:'โปรดยืนยันตัวตน'})
         }
     }
 }

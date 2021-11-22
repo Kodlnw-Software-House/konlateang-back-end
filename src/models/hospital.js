@@ -17,7 +17,7 @@ const Hostipal = sequelize.define('hospital_adminstator',{
             isUnique: async function(value){
                 const hospital = await Hostipal.findOne({where:{hospital_name:value}})
                 if(hospital){
-                    throw new Error('hospital_name already in use!')
+                    throw new Error('ฟิลด์ hospital_name ถูกใช้ไปแล้ว!')
                 }
             }
         }
@@ -54,12 +54,12 @@ HospitalToken.removeAttribute('id')
 Hostipal.verifyLogin = async function(email,password){
     const hospitalResult = await Hostipal.findOne({where:{email}});
     if(!hospitalResult){
-        throw new Error('unable to login.');
+        throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
     }
 
     const isMatch = await bcrypt.compare(password,hospitalResult.password);
     if(!isMatch){
-        throw new Error('unable to login.');
+        throw new Error('ไม่สามารถเข้าสู่ระบบได้ โปรดตรวจสอบชื่อผู้ใช้และรหัสผ่านอีกครั้ง');
     }
 
     return hospitalResult;

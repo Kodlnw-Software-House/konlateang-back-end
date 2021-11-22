@@ -22,7 +22,7 @@ router.get('/getall',async (req,res)=>{
         });
         res.status(200).send(hospitalResult);
     }catch(error){
-        res.status(500).send();
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -34,7 +34,7 @@ router.post('/login',async (req,res)=>{
         await HospitalToken.create({token,hospital_id:hospital.hospital_id});
         res.status(201).send({hospital,token,tokenType:'Bearer'});
     }catch(error){
-        res.status(400).send({error:error.message});
+        res.status(400).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -79,7 +79,7 @@ router.get('/getIsolation/:id',auth('HOSPITAL'),async(req,res)=>{
     }})
 
     if(!isolation){
-        return res.status(404).send({status:'isolation id: '+req.params.id+' not found in your hospital'})
+        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
     }
 
     const bookingLeft = await Booking.count({where:
@@ -118,7 +118,7 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
         }})
 
         if(!isOwner){
-            return res.status(404).send({status:'isolation id: '+req.params.id+' not found in your hospital'})
+            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.id+' ในโรงพยาบาลของคุณ'})
         }
 
         const booking = await Booking.findAndCountAll({
@@ -146,7 +146,7 @@ router.get('/getBooking/:id',auth('HOSPITAL'),async(req,res)=>{
         booking.totalPage = Math.ceil(booking.count / limit)
         res.status(200).send({booking})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -160,7 +160,7 @@ router.post('/createIsolation',upload.array('files'),auth('HOSPITAL'),async(req,
         })
         return res.status(200).send({community_isolation_id:isolation.community_isolation_id})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -172,7 +172,7 @@ router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),
     }})
     
     if(!isOwner){
-        return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
     }
     
     const count = await IsolationImage.findAll({where:{
@@ -184,13 +184,13 @@ router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),
 
 
     if(count.length >= 3){
-        throw new Error('images are limit at 3 pictures.')
+        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
     }
     else if(req.files.length + count.length > 3){
-        throw new Error('images are limit at 3 pictures.')
+        throw new Error('รูปภาพถูกจำกัดไว้ได้ไม่เกิน 3 รูป')
     }
     else if(req.files.length <= 0 || req.files.length > 3){
-        throw new Error('images upload limit between 1 and 3 pictures.')
+        throw new Error('การอัพโหลดรูปภาพจะต้องมี 1 ถึง 3 ภาพขึ้นไป')
     }
 
     const imageIndexArr = count.map(u => u.get("index"))
@@ -209,9 +209,9 @@ router.post('/uploadImage/:isolationId', auth('HOSPITAL'),upload.array('files'),
     }
     
         await IsolationImage.bulkCreate(images)
-        res.send({status:'upload images successful.'})
+        res.send({status:'อัพโหลดรูปภาพเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -224,7 +224,7 @@ router.get('/getImage/:isolationId/:index', async (req,res)=>{
         }
     })
     if(!image){
-        return res.status(404).send({error:'image not found'})
+        return res.status(404).send({error:'ไม่พบข้อมูลรูปภาพในระบบ'})
     }
     const rawfile = Buffer.from(image.image,'base64')
     const m = /^data:(.+?);base64,(.+)$/.exec(rawfile)
@@ -237,7 +237,7 @@ router.get('/getImage/:isolationId/:index', async (req,res)=>{
     })
     res.end(file)
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -249,7 +249,7 @@ router.get('/getImageCount/:isolationId',(req,res)=>{
     }).then((count)=>{
         res.send({count})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 
@@ -260,7 +260,7 @@ router.put('/edit/:id',upload.array(),auth('HOSPITAL'),async(req,res)=>{
         const isValidOperation = updates.every((update)=> allowedUpdates.includes(update));
         
         if(!isValidOperation){
-            return res.status(400).send({ error:'Invalid updates!'});
+            return res.status(400).send({ error:'ข้อมูลการอัพเดตไม่ถูกต้อง!'});
         }
 
         const hasAvailableBed = updates.includes('available_bed')
@@ -271,16 +271,16 @@ router.put('/edit/:id',upload.array(),auth('HOSPITAL'),async(req,res)=>{
                 }
             })
             if(req.body.available_bed<count){
-                return res.status(400).send({error:'available_bed must not less than original.'})
+                return res.status(400).send({error:'จำนวนเตียงที่ใส่จะต้องไม่น้อยกว่าของเดิม!'})
             }
         }
 
         await Isolation.update(req.body,{
             where:{community_isolation_id:req.params.id}
         })
-        res.status(200).send({status:'update successful.'})
+        res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
     
 })
@@ -292,7 +292,7 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
     }})
 
     if(!isOwner){
-        return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+        return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
     }
 
     const booking = await Booking.findOne({
@@ -303,7 +303,7 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
     
     const avoidStatus = [1,3]
     if(avoidStatus.includes(booking.status_id)){
-        return res.status(400).send({error:'Booking id: '+req.params.bookingId+' not allow to update because status is done or booking failed.'})
+        return res.status(400).send({error:'Booking id: '+req.params.bookingId+' ไม่อนุญาตให้อัตเดตเนื่องจากสถานะเป็น done หรือ booking failed แล้ว'})
     }
 
     await Booking.update({status_id:req.query.statusId},{
@@ -312,11 +312,11 @@ router.put('/editStatus/:isolationId/:bookingId',auth('HOSPITAL'),async(req,res)
         }
     }).then((result)=>{
         if(result[0]===0){
-            return res.status(200).send({status:'noting to update.'})
+            return res.status(200).send({status:'ไม่มีการอัพเดตเกิดขึ้น'})
         }
-        res.status(200).send({status:'update successful.'})
+        res.status(200).send({status:'อัพเดตข้อมูลเสร็จสิ้น!'})
     }).catch((error)=>{
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     })
 })
 
@@ -328,13 +328,13 @@ router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.si
         }})
     
         if(!isOwner){
-            return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
         }
         
         if(!req.params.isolationId || !req.params.index){
-            res.status(404).send({status:'file not found!'})
+            res.status(404).send({status:'ไม่พบรูปภาพในระบบ'})
         }else if(!req.file){
-            res.status(400).send({status:'required image file!'})
+            res.status(400).send({status:'ต้องการรูปภาพ!'})
         }
         else{
             const newImage = {
@@ -346,11 +346,11 @@ router.put('/editIsolationImage/:isolationId/:index', auth('HOSPITAL'),upload.si
                     index: req.params.index
                 }
             })
-            res.send({status:'Update image successful!'})
+            res.send({status:'อัพโหลดรูปภาพเสร็จสิ้น!'})
         }
     }
     catch(error){
-        res.status(500).send({error:error.message})
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'})
     }
 })
 
@@ -362,7 +362,7 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('HOSPITAL'),asyn
         }})
     
         if(!isOwner){
-            return res.status(404).send({status:'isolation id: '+req.params.isolationId+' not found in your hospital'})
+            return res.status(404).send({status:'ไม่พบ isolation id: '+req.params.isolationId+' ในโรงพยาบาลของคุณ'})
         }
 
         const deleteIsolation = await IsolationImage.destroy({
@@ -373,12 +373,12 @@ router.delete('/deleteIsolationImage/:isolationId/:index', auth('HOSPITAL'),asyn
         })
 
         if(deleteIsolation === 0){
-            return res.status(404).send({status: "isolationImage not found!"});
+            return res.status(404).send({status: 'ไม่พบข้อมูลรูปภาพในระบบ'});
         }
 
-        res.status(200).send({ status: "delete successful!" });
+        res.status(200).send({ status: 'ลบรูปภาพเสร็จสิ้น' });
     }catch(error){
-        res.status(500).send({error:error.message});
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
@@ -391,7 +391,7 @@ router.delete('/logout', auth('HOSPITAL'),async (req,res)=>{
         });
         res.status(200).send();
     }catch(error){
-        res.status(500).send({error:error.message});
+        res.status(500).send({error:'มีปัญหาผิดพลาดเกิดขึ้นไม่สามารถดำเนินการได้ โปรดลองในภายหลัง'});
     }
 })
 
